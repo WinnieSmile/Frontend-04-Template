@@ -1,0 +1,210 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-08-30 16:31:00
+ * @LastEditTime: 2020-08-31 22:53:28
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \Frontend-04-Template\Week_01\TicTacToe\index.html
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicTacToe一维数组实现</title>
+    <style>
+        .cell{
+            width: 100px;
+            height: 100px;
+            background-color: green;
+            display: inline-block;
+            border: 1px solid white;
+            vertical-align: middle;   
+            
+            line-height: 100px;
+            font-size: 50px;
+            text-align: center;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div id="board"></div>
+
+    <script>
+        // 使用一维数组
+        let pattern = [
+            0, 0, 0,
+            0, 0, 0,
+            0, 0, 0
+        ]
+
+        let color = 1;  
+
+        function show(){
+            let board = document.getElementById("board");
+
+            board.innerHTML = "";   
+
+            /*
+                一维数组如何区分行和列：轴是3的倍数的余数，y轴是3的倍数。
+                方法：把所有的 pattern[i][j]    全都换成 pattern[i * 3 + j]
+                              pattern[y][x]    全都换成 pattern[i * 3 + j]
+                              tmp[i][j]        全部换成 tmp[i * 3 + j]
+                              pattern[j][2-j]  全部换成 pattern[j * 3 + 2-j]
+                              pattern[j][j]    全部换成 pattern[j * 3 + j]
+            */
+            for(let i = 0; i < 3; i++){
+                for(let j = 0; j < 3; j++){
+                    let cell = document.createElement("div");
+                    cell.classList.add("cell");
+                    cell.innerText = 
+                        pattern[i * 3 + j] == 2 ? "❌" :
+                        pattern[i * 3 + j] == 1 ? "⭕" : "";
+                    //添加监听事件（交替落子）move函数
+                    cell.addEventListener("click", () => move(j, i));
+                    board.appendChild(cell);
+                }
+                board.appendChild(document.createElement("br"))   
+            }
+        }
+        
+        // 交替落子：点击格子，切换❌和⭕
+        function move(x, y){
+            pattern[y * 3 + x] = color  //pattern[y][x] 换成 pattern[y * 3 + x]
+            // 判断胜负
+            if(check(pattern, color)){
+                alert(color == 2 ? "❌ is winner!" : "⭕ is winner!");
+            }
+
+            color = 3 - color;     
+            console.log('每次move之后都打印bestChoice',bestChoice(pattern, color));
+            show();
+            if(willWin(pattern, color)){  
+                console.log(color == 2 ? "❌ will win!" : "⭕ will win!");
+            }
+        }
+
+        // 判断胜负
+        function check(pattern, color){
+            // 检查三行
+            for(let i = 0; i < 3; i++){
+                let win = true;
+                for(let j = 0; j < 3; j++){
+                    if(pattern[i * 3 + j] !== color){  //pattern[i][j]换成 pattern[i * 3 + j]
+                        win = false;
+                    }
+                }
+                if(win)
+                    return true;               
+            }
+            // 检查三列：将i、j位置调换
+            for(let i = 0; i < 3; i++){
+                let win = true;
+                for(let j = 0; j < 3; j++){
+                    if(pattern[j * 3 + i] !== color){  //pattern[j][i] 换成 pattern[j * 3 + i]
+                        win = false;
+                    }
+                }
+                if(win)
+                    return true;
+            }
+            // 检查斜向：简单斜向。特点：横纵坐标都相等
+            {
+                let win = true;
+                for(let j = 0; j < 3; j++){
+                    if(pattern[j * 3 + j] !== color){  //pattern[j][j] 换成 pattern[j * 3 + j]
+                        win = false;
+                    }
+                }
+                if(win){
+                    return true
+                }
+            }
+            // 检查斜向：对着的斜向。特点；i+j=2
+            {
+                let win = true;
+                for(let j = 0; j < 3; j++){
+                    if(pattern[j * 3 + 2-j] !== color){  //pattern[j][2-j] 换成 pattern[j * 3 + 2-j]
+                        win = false;
+                    }
+                }
+                if(win)
+                    return true;
+            }
+            return false
+        }
+
+        /*
+            技巧： 利用JavaScript的原型机制
+            这个clone只是创建了一个新对象，并且以原有的 pattern 为原型，这个pattern不但继承了原来的pattern的方法，也继承了原来pattern的数据。
+            新clone的pattern的生命周期要短于老的pattern。
+            Object.create(pattern)  可以代替原来的 JsonJSON.parse(JSON.stringify(pattern)) ,这样可以为我们节省很多的内存空间。
+        */
+        function clone(pattern){
+            return Object.create(pattern);
+        }
+
+        function willWin(pattern, color){
+            for(let i = 0; i < 3; i++){
+                for(let j = 0; j < 3; j++){
+                    if(pattern[i * 3 + j] !== 0)    // pattern[i][j] 换成 pattern[i * 3 + j]
+                        continue;
+                    
+                    let tmp = clone(pattern);
+                    tmp[i * 3 + j] = color;
+                    if(check(tmp, color)){
+                        return [j, i];   //将要win的话就返回point位置
+                    }
+                }
+            }
+            return null;
+        }
+        
+        // 最佳策略 ( ai计算 )
+        function bestChoice(pattern, color){
+            let p;
+            // 特殊情况：如果将要willWin的话
+            if (p = willWin(pattern, color)) {
+                return {
+                    point: p,  //位置
+                    result: 1  //-1输  +1赢  0双方和了
+                }                
+            }
+            let result = -2;   //将-2作为初始值，因为即使是最差的情况(输了)值为-1。-2不可能作为真的result返回回去。因为只要有点就不可能是-2
+            let point = null;
+            outer: for(let i = 0; i < 3; i++){
+                for(let j = 0; j < 3; j++){
+                    if(pattern[i * 3 + j])
+                        continue;  //遇到已经有子的点就跳过去
+                    let tmp = clone(pattern);
+                    tmp[i * 3 + j] = color;
+                    // 递归
+                    let opp = bestChoice(tmp, 3 - color);  //opp表示对方最好的策略
+
+                    //找留给对方最差局面的点的过程
+                    if( -opp.result >= result ){    
+                        point = [j, i];
+                        result = -opp.result;                            
+                    }
+                    // 剪枝
+                    if(result == 1){
+                        break outer;  //break 掉两层循环，所以需要给两个for循环最外边加一个label
+                    }
+                }
+            }
+            
+            return{
+                point: point,
+                result: point ? result : 0     
+            }
+        }
+
+        show(pattern);
+        // console.log(bestChoice(pattern, color));
+
+    </script>
+    
+</body>
+</html>

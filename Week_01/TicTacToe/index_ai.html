@@ -1,0 +1,187 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-08-30 16:31:00
+ * @LastEditTime: 2020-08-31 22:52:29
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \Frontend-04-Template\Week_01\TicTacToe\index.html
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicTacToe添加AI</title>
+    <style>
+        .cell{
+            width: 100px;
+            height: 100px;
+            background-color: green;
+            display: inline-block;
+            border: 1px solid white;
+            vertical-align: middle;  
+            
+            line-height: 100px;
+            font-size: 50px;
+            text-align: center;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div id="board"></div>
+
+    <script>
+        let pattern = [
+            [0, 0, 2],
+            [0, 1, 0],
+            [0, 0, 0]
+        ]
+
+        let color = 1;  
+
+        function show(){
+            let board = document.getElementById("board");
+
+            board.innerHTML = "";  
+
+            for(let i = 0; i < 3; i++){
+                for(let j = 0; j < 3; j++){
+                    let cell = document.createElement("div");
+                    cell.classList.add("cell");
+                    cell.innerText = 
+                        pattern[i][j] == 2 ? "❌" :
+                        pattern[i][j] == 1 ? "⭕" : "";
+                    cell.addEventListener("click", () => move(j, i));
+                    board.appendChild(cell);
+                }
+                board.appendChild(document.createElement("br"))   
+            }
+        }
+        
+       
+        function move(x, y){
+            pattern[y][x] = color  
+            if(check(pattern,color)){
+                alert(color == 2 ? "❌ is winner!" : "⭕ is winner!");
+            }
+            color = 3 - color;     
+            show();            
+            if(willWin(pattern, color)){  
+                console.log(color == 2 ? "❌ will win!" : "⭕ will win!");
+            }
+        }
+
+        function check(pattern, color){
+            for(let i = 0; i < 3; i++){
+                let win = true;
+                for(let j = 0; j < 3; j++){
+                    if(pattern[i][j] !== color){
+                        win = false;
+                    }
+                }
+                if(win)
+                    return true;               
+            }
+            for(let i = 0; i < 3; i++){
+                let win = true;
+                for(let j = 0; j < 3; j++){
+                    if(pattern[j][i] !== color){  
+                        win = false;
+                    }
+                }
+                if(win)
+                    return true;
+            }
+            {
+                let win = true;
+                for(let j = 0; j < 3; j++){
+                    if(pattern[j][j] !== color){
+                        win = false;
+                    }
+                }
+                if(win){
+                    return true
+                }
+            }
+            {
+                let win = true;
+                for(let j = 0; j < 3; j++){
+                    if(pattern[j][2-j] !== color){
+                        win = false;
+                    }
+                }
+                if(win)
+                    return true;
+            }
+            return false
+        }
+
+        function clone(pattern){
+            return JSON.parse(JSON.stringify(pattern));
+        }
+
+        function willWin(pattern, color){
+            for(let i = 0; i < 3; i++){
+                for(let j = 0; j < 3; j++){
+                    if(pattern[i][j])
+                        continue;
+                    
+                    let tmp = clone(pattern);
+                    tmp[i][j] = color;
+                    if(check(tmp, color)){
+                        return [j, i];   //将要win的话就返回point位置
+                    }
+                }
+            }
+            return null;  //将false改为null
+        }
+        
+        // 最佳策略 ( ai计算 )
+        function bestChoice(pattern, color){
+            let p;
+            // 特殊情况：如果将要willWin的话
+            if (p = willWin(pattern, color)) {
+                return {
+                    point: p,  //位置
+                    result: 1  //-1输  +1赢  0双方和了
+                }                
+            }
+            let result = -2;   //将-2作为初始值，因为即使是最差的情况(输了)值为-1。-2不可能作为真的result返回回去。因为只要有点就不可能是-2
+            let point = null;
+            outer: for(let i = 0; i < 3; i++){
+                for(let j = 0; j < 3; j++){
+                    if(pattern[i][j])
+                        continue;  //遇到已经有子的点就跳过去
+                    let tmp = clone(pattern);
+                    tmp[i][j] = color;
+                    // 递归
+                    let r = bestChoice(tmp, 3 - color).result;  //r表示对方最好的策略（当走了子之后去看对方最好的策略：如果对方最好的策略比较差，那我们就倾向于走这个位置）
+
+                    //找留给对方最差局面的点的过程
+                    if(- r > result){    //-r表示对方最差的策略，对方赢表示我方输。（ -r>result 我方走完能给对方留下的最差的局面是什么）
+                        result = -r;     
+                        point = [j, i];
+                    }
+                    // 可添加剪枝的逻辑
+                    if(result == 1){
+                        break outer
+                    }
+                  
+                }
+            }
+            
+            return{
+                point: point,
+                result: point ? result : 0     //如果result最后是-2的话，没有位置可落子，此时还没有分出胜负，则是和棋，result给它返回0；否则返回result
+            }
+        }
+
+        show(pattern);
+        console.log(bestChoice(pattern, color));
+
+    </script>
+    
+</body>
+</html>
