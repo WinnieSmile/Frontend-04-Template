@@ -1,0 +1,109 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-09-01 22:02:39
+ * @LastEditTime: 2020-09-01 23:50:48
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \前端训练营\作业提交\Frontend-04-Template\Week_01\redgreen\index.html
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>generator</title>
+    <style>
+        div{
+           background-color: grey;
+           display: inline-block;
+           margin: 30px;
+           width: 100px;
+           height: 100px;
+           border-radius: 50px;
+        }
+        .green.light{
+           background-color: green;
+        }
+        .yellow.light{
+           background-color: yellow;
+        }
+        .red.light{
+           background-color: red;
+        }
+    </style>
+<body>
+    <div class="green"></div>
+    <div class="yellow"></div>
+    <div class="red"></div>
+
+    <button id="next">next</button>
+
+    <script>
+        function green(){
+            var lights = document.getElementsByTagName("div");
+            for(var i = 0; i < 3; i++){
+                lights[i].classList.remove("light")
+                document.getElementsByClassName("green")[0].classList.add("light")
+            }
+        }
+        function red(){
+            var lights = document.getElementsByTagName("div")
+            for(var i = 0; i < 3; i++){
+                lights[i].classList.remove("light")
+                document.getElementsByClassName("red")[0].classList.add("light")
+            }
+        }
+        function yellow(){
+            var lights = document.getElementsByTagName("div")
+            for(var i = 0; i < 3; i++){
+                lights[i].classList.remove("light")
+                document.getElementsByClassName("yellow")[0].classList.add("light")
+            }
+        }
+
+        function sleep(t){
+            return new Promise((resolve, reject)=>{
+                setTimeout(resolve, t);
+            })
+        } 
+
+        /* 
+            在async出现之前，是使用generator来模拟async这样的操作。用同步代码来模拟异步的方案。
+            在function后面加* 表示generator函数, 把await换成yield
+        */ 
+        function* go(){
+            while(true){
+                green();
+                yield sleep(1000)
+                yellow()
+                yield sleep(200)
+                red()
+                yield sleep(500)
+
+            }
+        }
+        
+        
+        function run(iterator){
+            let { value, done } = iterator.next();   // generator函数会返回iterator这样一个迭代器
+            if(done){    // 每次把这个iterator迭代器取出来，如果是done的话就结束了，说明代码执行到这了。
+                return
+            }
+            if(value instanceof Promise)   //如果返回的是Promise的话，就让它继续去执行 run(iterator) 操作
+                value.then(()=>{
+                    run(iterator)
+                })
+        } 
+
+        function co(generator){
+            return function(){
+                return run(generator())
+            }
+        }  
+
+        go = co(go);        
+        
+    </script>
+    
+</body>
+</html>

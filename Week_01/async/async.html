@@ -1,0 +1,110 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-09-01 22:02:39
+ * @LastEditTime: 2020-09-01 23:50:57
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \前端训练营\作业提交\Frontend-04-Template\Week_01\redgreen\index.html
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>async</title>
+    <style>
+        div{
+           background-color: grey;
+           display: inline-block;
+           margin: 30px;
+           width: 100px;
+           height: 100px;
+           border-radius: 50px;
+        }
+        .green.light{
+           background-color: green;
+        }
+        .yellow.light{
+           background-color: yellow;
+        }
+        .red.light{
+           background-color: red;
+        }
+    </style>
+<body>
+    <div class="green"></div>
+    <div class="yellow"></div>
+    <div class="red"></div>
+
+    <button id="next">next</button>
+
+    <script>
+        function green(){
+            var lights = document.getElementsByTagName("div");
+            for(var i = 0; i < 3; i++){
+                lights[i].classList.remove("light")
+                document.getElementsByClassName("green")[0].classList.add("light")
+            }
+        }
+        function red(){
+            var lights = document.getElementsByTagName("div")
+            for(var i = 0; i < 3; i++){
+                lights[i].classList.remove("light")
+                document.getElementsByClassName("red")[0].classList.add("light")
+            }
+        }
+        function yellow(){
+            var lights = document.getElementsByTagName("div")
+            for(var i = 0; i < 3; i++){
+                lights[i].classList.remove("light")
+                document.getElementsByClassName("yellow")[0].classList.add("light")
+            }
+        }
+
+        // 函数名、 return new Promise(()=>{}) 这种结构，其实也是一种 async 函数
+        // 所有的async函数逐级调用到最后，也会是下边这样的形式。 
+        function sleep(t){
+            return new Promise((resolve, reject)=>{
+                setTimeout(resolve, t);
+            })
+        }        
+        
+        /*
+            在函数的前面加上 async关键字，那这个函数里面就可以使用 await。使用await之后就可以等待一个 Promise的结束。 
+            可以使用分支、循环、顺序 这三种数据结构去描述异步关系，本质上是语法上的一种改进。
+            描述同步代码的分支顺序循环，也能描述 async/await的执行。            
+        */
+        
+        // 方法一： 使用async关键字，可使用await方法。[自动控制红绿灯的转换]
+        async function go(){
+            while(true){
+                green();
+                await sleep(1000);
+                yellow();
+                await sleep(200);
+                red();
+                await sleep(500);
+            }
+        }
+
+        // 方法二：使用 return new Promise(()=>{})   [手动控制红绿灯的转换] 优解，比callback好
+        function happen(element, eventName){
+            return new Promise((resolve, reject)=>{
+                element.addEventListener(eventName, resolve, {once:true});
+            })
+        }
+        async function go_2(){
+            while(true){
+                green();
+                await happen(document.getElementById("next"),"click");
+                yellow();
+                await happen(document.getElementById("next"),"click");
+                red();
+                await happen(document.getElementById("next"),"click");
+            }
+        }
+        
+    </script>
+    
+</body>
+</html>
