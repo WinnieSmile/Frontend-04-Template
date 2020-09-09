@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>寻路|广度优先搜索</title>
+    <style>
+        .cell{
+            display: inline-block;   
+            line-height: 7px;
+            width: 6px;
+            height: 6px;
+            background-color:#ccc;
+            border-bottom: solid 1px  white;
+            border-right: solid 1px  white;
+            vertical-align: middle;  
+        }
+        #container{
+            width: 701px;
+            font-size: 0;  
+        }
+
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    <button onclick="localStorage['map'] = JSON.stringify(map) ">save</button>    
+
+    <script>
+      
+        let map = localStorage["map"] ? JSON.parse(localStorage["map"]) : Array(10000).fill(0);   
+
+        let container = document.getElementById("container");  
+        
+        for(let y = 0; y < 100; y++){
+            for(let x = 0; x < 100; x++){
+                let cell = document.createElement("div");
+                cell.classList.add("cell");
+
+                
+                if(map[100*y + x] == 1)  
+                    cell.style.backgroundColor = "black";
+                
+                cell.addEventListener("mousemove", () => {
+                    if(mousedown){    
+                        if(clear){
+                            cell.style.backgroundColor = "";
+                            map[100*y + x] = 0;
+                        }else{
+                            cell.style.backgroundColor = "black";   
+                            map[100*y + x] = 1                       
+                        }
+                    }
+                })
+                container.appendChild(cell);
+            }
+        }
+
+        let mousedown = false;
+        let clear = false;
+        document.addEventListener("mousedown", e => {
+            mousedown = true;
+            clear = (e.which === 3)    
+        });
+        document.addEventListener("mouseup", () => mousedown = false);     
+        document.addEventListener("contextmenu", e => e.preventDefault());  
+
+        
+        /* 
+            queue这个集合是所有算法的灵魂，所有算法的差异都在这个queue集合中。
+            queue是一种数据结构，采用先进先出。
+            JavaScript数组就是一个天然的队列，也是一个天然的栈。数组的方法有shift、unshift 和 push、pop
+            如果push和shift相对，那么它就是一个队列，pop如果和unshift联合使用也是一个队列；push和pop联合使用就是一个栈。 
+            注意：下方代码逻辑中，如果把queue改名为stack(随意起名)，将push()、shift()改为pop()、unshift()则变成了一个深度优先搜索。  push()、shift()联合使用就是广度优先搜索。                     
+        */ 
+
+        // 寻路算法：给三个参数：地图、起点、终点
+        function path(map, start, end){
+            var queue = [start];   
+
+            // insert函数是一个入队的逻辑。
+            // insert里的内容是：如果遇到边（边缘），就insert不了,什么也不做; 如果这个点已经有墙了（map等于1的情况）就标记这个节点，将它入队。
+            function insert(x, y){
+                //处理边缘
+                if(x < 0 || x >= 100 || y < 0 || y >= 100)
+                    return;
+
+                //处理边缘
+                if(map[y * 100 + x])
+                    return;
+                
+                map[y * 100 + x] = 2;  //找到一个节点，作为一个新的节点，先在地图上做一个标记，把它的状态从0改为2。（原因：不想让它重复的去走，已经走过的点就给它一个特殊的状态：既不是0也不是1，把它标为2）
+                queue.push([x, y]);    //然后把这个点入队
+            }
+            /* 
+                广度优先搜索：
+                1、选择shift和push作为一个队列的入队和出队的两个方法。
+                2、给queue里已经加了start,在第一遍循环的时候就把start的4个周围的节点加进这个队列里,
+                3、然后逐个地把所有队列里面的点,它周围的点全都加进这个队列里，一直到这个队列变空为止。
+            */
+            while(queue.length){
+                let [x, y] = queue.shift();   //从队里取出一个元素
+                console.log("从队里取出一个元素",x, y);
+                if(x === end[0] && y === end[1]){  //找到最终end的点，return true 说明这个节点是能走到的
+                    return true;
+                }
+                // 如果不是的话，就会进入到周围的点（上下左右）
+                insert(x - 1, y);   //上
+                insert(x, y - 1);   //下
+                insert(x + 1, y);   //左
+                insert(x, y + 1);   //右
+            }
+
+        }
+
+    </script>
+    
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>寻路|处理路径问题</title>
+    <style>
+        .cell{
+            display: inline-block;   
+            line-height: 7px;
+            width: 6px;
+            height: 6px;
+            background-color:#ccc;
+            border-bottom: solid 1px  white;
+            border-right: solid 1px  white;
+            vertical-align: middle;  
+        }
+        #container{
+            width: 701px;
+            font-size: 0;  
+        }
+
+    </style>
+</head>
+<body>
+    <div id="container"></div>    
+    <button onclick="localStorage['map'] = JSON.stringify(map) ">save</button>    
+
+    <script>
+      
+        let map = localStorage["map"] ? JSON.parse(localStorage["map"]) : Array(10000).fill(0);   
+
+        let container = document.getElementById("container");  
+        
+        for(let y = 0; y < 100; y++){
+            for(let x = 0; x < 100; x++){
+                let cell = document.createElement("div");
+                cell.classList.add("cell");
+
+                
+                if(map[100*y + x] == 1)  
+                    cell.style.backgroundColor = "black";
+                
+                cell.addEventListener("mousemove", () => {
+                    if(mousedown){    
+                        if(clear){
+                            cell.style.backgroundColor = "";
+                            map[100*y + x] = 0;
+                        }else{
+                            cell.style.backgroundColor = "black";   
+                            map[100*y + x] = 1                       
+                        }
+                    }
+                })
+                container.appendChild(cell);
+            }
+        }
+
+        let mousedown = false;
+        let clear = false;
+        document.addEventListener("mousedown", e => {
+            mousedown = true;
+            clear = (e.which === 3)    
+        });
+        document.addEventListener("mouseup", () => mousedown = false);     
+        document.addEventListener("contextmenu", e => e.preventDefault());  
+
+        
+        function sleep(t){
+            return new Promise(function(resolve){
+                setTimeout(resolve, t);
+            })
+        }
+
+        /*
+            寻找最终路径：把参数pre传进去、把pre写进表格里、沿着pre的链路去找最终路径。
+            在扩展每个点的时候，是知道它是从哪个点来的：比如5、6、7它的前一个点是1；8、9是由2扩展过来的。
+            执行insert方法的时候是知道它前一个点是什么，所以，寻找最终的路径：只要将在map上标2的过程改成标它的前驱节点的过程；执行8这个点的时候，把2这个点的坐标写到8的位置就结束了。
+
+        */
+        
+        async function findPath(map, start, end){
+            let table = Object.create(map);  //将map里边所有标1的节点全部复制过来：使用Object.create。这样产生一个新的table，这样在table上不论记什么东西，都不会影响原来的map
+            let queue = [start];
+
+            async function insert(x, y, pre){   //传入pre这个参数
+                if(x < 0 || x >= 100 || y < 0 || y >= 100){
+                    return;
+                }
+                if(table[y * 100 + x]){  //将map[y * 100 + x] 改为 table[y * 100 + x]
+                    return;
+                }
+
+                await sleep(1);  
+                container.children[y * 100 + x].style.backgroundColor = "lightgreen";  
+                table[y * 100 + x] = pre;  //将2改为pre。因为pre是一个对象，所以写pre和写2对于逻辑判断来说是一样的
+                queue.push([x, y]);
+            }
+
+            while(queue.length){
+                let [x, y] = queue.shift();
+                console.log(x, y);
+                if(x === end[0] && y === end[1]){  //找到end节点，然后从end节点一个一个往前找它的前驱节点，一直找到起始节点。
+                    let path = [];  //设一个path变量
+
+                    while(x != start[0] || y != start[1]){
+                        path.push(map[y * 100 + x]);
+                        [x, y] = table[y * 100 + x]; //重要：解构赋值。把table里边的坐标取出来，然后变为[x,y]。每个table里边存的都是它的前一个节点；这样while循环每次都找到它前面的节点，一直找到 start x 和 start y；然后把这个前驱节点记录下来，标为紫色。
+                        await sleep(10);             //可以看到划路径的过程。
+                        container.children[y * 100 + x].style.backgroundColor = "purple";
+                    }
+                    return path;  //将return true改为 return path                   
+                }
+
+                // 把insert的所有的参数都加上一个[x,y]
+                await insert(x - 1, y, [x, y]);   
+                await insert(x, y - 1, [x, y]);   
+                await insert(x + 1, y, [x, y]);   
+                await insert(x, y + 1, [x, y]);   
+
+                // 斜向
+                await insert(x - 1, y - 1, [x, y]);
+                await insert(x + 1, y - 1, [x, y]);
+                await insert(x - 1, y + 1, [x, y]);
+                await insert(x + 1, y + 1, [x, y]);
+            }
+            return null;  //没找到路径，返回null。
+
+        }
+
+
+    </script>
+    
+</body>
+</html>

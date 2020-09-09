@@ -1,0 +1,89 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-09-03 20:48:38
+ * @LastEditTime: 2020-09-08 22:33:30
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \前端训练营\作业提交\Frontend-04-Template\Week_02\寻路\01地图编辑器\index.html
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>寻路|实现一个地图编辑器</title>
+    <style>
+        .cell{
+            display: inline-block;   /* display:flex; 也可 */
+            line-height: 7px;
+            width: 6px;
+            height: 6px;
+            background-color:#ccc;
+            border-bottom: solid 1px  white;
+            border-right: solid 1px  white;
+            vertical-align: middle;  /* middle、bottom */
+        }
+        #container{
+            width: 701px;
+            font-size: 0;  /* 可使格子是紧密相贴 */
+        }
+
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    <button onclick="localStorage['map'] = JSON.stringify(map) ">save</button>    
+    <!-- 保存：在点击保存按钮的时候，把map的JSON形式存起来 -->
+
+    <script>
+        // 100*100的地图格子。
+        // 初始化一个长度为10000的数组，对它进行fill
+        let map = localStorage["map"] ? JSON.parse(localStorage["map"]) : Array(10000).fill(0);   //如果初始化的时候localStorage里边已经有map的话，就直接从localStorage里边调出来就行；否则重新渲染。
+
+        let container = document.getElementById("container");  //获取地图上的container,然后往里面填东西。
+        // 一维数组用了两个for循环来实现
+        for(let y = 0; y < 100; y++){
+            for(let x = 0; x < 100; x++){
+                let cell = document.createElement("div");
+                cell.classList.add("cell");
+
+                // 画地图： 使用100*y+x 表示对应的地图里面的位置。(用一维数组来表示一个二维矩阵，利用同余的特性)
+                if(map[100*y + x] == 1)  //有墙:用1表示； 没墙:用0表示
+                    cell.style.backgroundColor = "black";
+                
+                // 编辑地图
+                // 使用mousemove的监听：按住鼠标一移动就能监听到。  【左键是建墙，右键是清除。】
+                cell.addEventListener("mousemove", () => {
+                    if(mousedown){    //是否是mousedown的时候mousemove。即是否是按住的时候就给它变成墙
+                        if(clear){
+                            cell.style.backgroundColor = "";
+                            map[100*y + x] = 0;
+                        }else{
+                            cell.style.backgroundColor = "black";    //视觉上变成墙
+                            map[100*y + x] = 1                       //逻辑上变成墙
+                        }
+                    }
+                })
+                container.appendChild(cell);
+            }
+        }
+
+        let mousedown = false;
+        let clear = false;
+        document.addEventListener("mousedown", e => {
+            mousedown = true;
+            clear = (e.which === 3)    //clear的状态是通过event的事件来判断，是否是在按右键。如果是按右键则置为3
+        });
+        document.addEventListener("mouseup", () => mousedown = false);      //mouseup的时候将mousedown置为false
+        document.addEventListener("contextmenu", e => e.preventDefault());  //使用右键，需要将contextmenu事件阻止掉,否则它会弹出菜单。
+
+        function path(map, start, end){
+
+        }
+
+
+
+    </script>
+    
+</body>
+</html>
