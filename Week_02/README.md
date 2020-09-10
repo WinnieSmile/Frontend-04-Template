@@ -24,7 +24,7 @@
 ``` javascript
 class Sorted{
     constructor(data, compare){ 
-        this.data = data.slice();   //保存一份data
+        this.data = data.slice();   // 保存一份data
         this.compare = compare || ((a, b) => a - b);  
     }
     // 每次take时都拿出一个最小的
