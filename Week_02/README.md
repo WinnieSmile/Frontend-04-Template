@@ -57,7 +57,8 @@ class Sorted{
 ``` javascript
 //定义一个无序数组
 let s = new Sorted([7, 3, 9, 6, 5, 4, 8, 0, 2])
-s.take();
+s.take();  
+
 //使用sort()
 [7, 3, 9, 6, 5, 4, 8, 0, 2].sort()
 //执行：
