@@ -32,7 +32,7 @@
 ``` javascript
 class Sorted{
     constructor(data, compare){ 
-        this.data = data.slice();   //保存一份data
+        this.data = data.slice();   // 保存一份data
         this.compare = compare || ((a, b) => a - b);  
     }
     // 每次take时都拿出一个最小的
@@ -40,8 +40,8 @@ class Sorted{
         if (!this.data.length) {
             return;     
         }
-        let min = this.data[0];   //存最小的数 (默认从0开始)
-        let minIndex = 0;         //存最小的位置
+        let min = this.data[0];   // 存最小的数 (默认从0开始)
+        let minIndex = 0;         // 存最小的位置
 
         // 循环从1开始
         for(let i = 1; i < this.data.length; i++){
@@ -50,7 +50,7 @@ class Sorted{
                 minIndex = i;
             }
         }
-        //把数组和最后一个元素交换，把最后一个元素用新的点覆盖掉了
+        // 把数组和最后一个元素交换，把最后一个元素用新的点覆盖掉了
         this.data[minIndex] = this.data[this.data.length - 1];          
         this.data.pop();
         return min;
@@ -63,13 +63,13 @@ class Sorted{
 
 执行：
 ``` javascript
-//定义一个无序数组
+// 定义一个无序数组
 let s = new Sorted([7, 3, 9, 6, 5, 4, 8, 0, 2])
 s.take();  
 
-//使用sort()
+// 使用sort()
 [7, 3, 9, 6, 5, 4, 8, 0, 2].sort()
-//执行
+// 执行
 [0, 2, 3, 4, 5, 6, 7, 8, 9]
 ```
 
