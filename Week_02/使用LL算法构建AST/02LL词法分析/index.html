@@ -1,0 +1,48 @@
+<!-- 词法分析 -->
+<script>
+    var regexp = /([0-9\.]+)|([ \t])|([\r\n]+)|(\*)|(\/)|(\+)|(\-)/g
+
+    var dictionary = ["Number", "Whitespace", "LineTerminator", "*", "/", "+", "-"];
+
+    // 如果匹配出来的长度与它前进的长度不一样长，如何处理？ 
+    // 使用生成器（Generator）
+    function* tokenize(source){
+        var result = null;
+        var lastIndex = 0;  //定义一个函数级的变量 
+        while(true){
+            lastIndex = regexp.lastIndex;  //取出lastIndex变量
+            result = regexp.exec(source);  
+
+            if (!result)  //没匹配出来
+                break; 
+
+            if (regexp.lastIndex - lastIndex > result[0].length)  //将取出的lastIndex变量和新生成的lastIndex做一个比较，如果长度超了的话，说明里面有不认识的字符或者不认识的格式。
+                break;
+
+            //定义一个token的变量。将token存起来，使token变成一个有效的token。
+            let token = { 
+                type:null,
+                value:null
+            }
+                        
+            
+            for(var i = 1; i <= dictionary.length; i++){
+                if(result[i])  
+                token.type = dictionary[i - 1];   //找出token的type               
+            }
+            token.value = result[0];  //赋值
+            yield token;  //不断找出来多个token。利用js新的语法特性：当返回一个序列的时候就使用yield。
+        }
+
+        yield{
+            type:"EOF"
+        }
+    }
+
+    for(let token of tokenize("1024 + 10 * 25")){
+        console.log(token);
+    }
+
+    
+
+</script>

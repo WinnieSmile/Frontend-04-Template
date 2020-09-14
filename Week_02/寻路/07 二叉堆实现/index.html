@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>寻路|启发式搜索二 A*</title>
+    <title>寻路|二叉堆 (未完成) </title>
     <style>
         .cell{
             display: inline-block;   
@@ -17,7 +17,10 @@
         }
         #container{
             width: 701px;
-            font-size: 0;  
+            /* font-size: 0;   */
+            display: flex;
+            flex-wrap: wrap;
+
         }
 
     </style>
@@ -32,7 +35,7 @@
         class Sorted{
             constructor(data, compare){     
                 this.data = data.slice();   
-                this.compare = compare || ((a, b) => a - b);  
+                this.compare = compare; 
             }
             
             take(){
@@ -53,14 +56,75 @@
                 this.data.pop();
                 return min;
             }
-            give(v){
+            //将give函数名换成insert
+            insert(v){
                 this.data.push(v);   
             }
-            // 路径长度函数
+         
             get length(){
                 return this.data.length;
             }
         }
+
+        // 二叉堆
+        class BinaryHeap{
+            constructor(data, compare){
+                this.data = data;
+                this.compare = compare;
+            }
+            // 取：从上到下，把堆顶取出来，这样的一个逐层地下降的过程
+            take(){
+                if (!this.data.length) {
+                    return;
+                }
+                let min = this.data[0];
+                let i = 0;
+                // fix heap
+                while(i < this.data.length){
+                    if (i * 2 + 1 >= this.data.length) {
+                        break;
+                    }
+                    if (i * 2 + 2 >= this.data.length) {
+                        this.data[i] = this.data[i * 2 + 2];
+                        i = i * 2 + 1;
+                        break;
+                    }
+                    if (this.compare(this.data[i * 2 + 1], this.data[i * 2 + 2]) < 0) {
+                        this.data[i] = this.data[i * 2 + 2];
+                        i = i * 2 + 2;                       
+                    }
+                }
+            }
+            // 插：从下往上
+            insertAt(i, v){
+                this.data[i] = v;
+                while(i > 0 && this.compare(v, this.data[Math, floor((i-1)/2)]) < 0){
+                    this.data[i]  = this.data[Math.floor((i-1)/2)];
+                    this.data[Math.floor(i-1)/2] = v;
+                    i = Math.floor((i-1)/2);
+                }
+            }
+            insert(v){
+                console.log(v);
+                this.insertAt(this.data.length, v);   
+            }         
+            get length(){
+                return this.data.length;
+            }
+
+        }
+
+/*
+        let heap = new BinaryHeap([], (a, b) => a -b);
+        heap.insert(3);
+        heap.insert(2);
+        heap.insert(1);
+        heap.insert(6);
+        heap.insert(7);
+        heap.insert(9);
+*/
+
+
       
         let map = localStorage["map"] ? JSON.parse(localStorage["map"]) : Array(10000).fill(0);   
 

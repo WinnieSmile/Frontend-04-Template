@@ -1,0 +1,29 @@
+<!-- 词法分析 -->
+<script>
+    // 正则表达式：以或关系分开、每一个里边都有一个圆括号的结构。 
+    // 正则表达式的特性：圆括号在正则里表示捕获，一旦对它进行了捕获，那它除了正则表达式整体表示的字符串，对圆括号里面的内容也会被匹配出来。
+    // 以或关系分开，那么每次正则匹配到一个或关系的分支里，这样的话给每个分支都起一个名字，从 0~9 开始叫做 Number；空白表示支持空格和反斜杠 t(即tab符)两种；换行符只支持 \r和\n两种；乘除加减都是用它符号本身作为名字。
+    var regexp = /([0-9\.]+)|([ \t])|([\r\n]+)|(\*)|(\/)|(\+)|(\-)/g
+
+    // 扫描出来的 token 名。
+    var dictionary = ["Number", "Whitespace", "LineTerminator", "*", "/", "+", "-"];
+
+    function tokenize(source){
+        var result = null;
+        while(true){
+            result = regexp.exec(source);  //使用正则表达式的 exec 不断地去扫描整个原字符串里面的内容。
+
+            if (!result) break;            //如果匹配到了result，里面有东西       
+            
+            // 就会根据 result 哪一个位置，从1开始（因为0是整个的正则匹配到的），在1~7这样的范围里面，
+            for(var i = 1; i <= dictionary.length; i++){
+                if(result[i])  //如果result有对应的值，就把 dictionary 打印出来
+                    console.log(dictionary[i - 1]);
+            }
+            console.log(result);  //将token本身打印出来
+        }
+    }
+
+    tokenize("1024 + 10 * 25")
+
+</script>
