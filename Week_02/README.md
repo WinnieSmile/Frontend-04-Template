@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2020-08-23 22:33:08
- * @LastEditTime: 2020-09-15 00:16:45
+ * @LastEditTime: 2020-09-15 21:53:52
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \Frontend-04-Template\Week_02\README.md
@@ -144,6 +144,7 @@ EOF（End of File）不是一个真实可见的字符，在分析中，如果有
 理解vue如何解析template成ast抽象树；  
 理解（逆）波兰表达式如何处理计算式；  
 理解js词法分析，如何用token标记每句源码。
+上传代码
 
 
 
