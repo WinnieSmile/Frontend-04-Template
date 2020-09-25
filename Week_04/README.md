@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2020-08-23 22:33:08
- * @LastEditTime: 2020-09-25 23:20:58
+ * @LastEditTime: 2020-09-25 23:26:29
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \Frontend-04-Template\Week_04\README.md
@@ -54,8 +54,9 @@ BNF
     <AddtiveExpression>"+"<MultiplicativeExpression>|
     <AddtiveExpression>"-"<MultiplicativeExpression>|
 ```
-作业：编写带括号的四则运算产生式 
-例如有一个式子是  ( 2+3 ) * 4 * ( 5 * 6) ，看看是否能够套到产生式里
+作业：编写带括号的四则运算产生式   
+
+例如有一个式子是  ( 2+3 ) * 4 * ( 5 * 6) ，看看是否能够套到产生式里。
 
 写法一：
 
