@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2020-08-23 22:33:08
- * @LastEditTime: 2020-09-25 23:26:29
+ * @LastEditTime: 2020-09-25 23:28:01
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \Frontend-04-Template\Week_04\README.md
@@ -17,7 +17,7 @@
 ## js语言通识|什么是产生式  
 * 产生式（BNF）： 在计算机中指 Tiger 编译器将源程序经过词法分析（Lexical Analysis）和语法分析（Syntax Analysis）后得到的一系列符合文法规则（Backus-Naur Form，BNF）的语句   
 * 巴科斯诺尔范式：即巴科斯范式（英语：Backus Normal Form，缩写为 BNF）是一种用于表示上下文无关文法的语言，上下文无关文法描述了一类形式语言。它是由约翰·巴科斯（John Backus）和彼得·诺尔（Peter Naur）首先引入的用来描述计算机语言语法的符号集。  
-* 终结符： 最终在代码中出现的字符（ https://zh.wikipedia.org/wiki/ 終結符與非終結符)
+* 终结符： 最终在代码中出现的字符（ https://zh.wikipedia.org/wiki/  终结符与非终结符)
    
 产生式的写法：  
 （1）用尖括号括起来的名称来表示语法结构名    
