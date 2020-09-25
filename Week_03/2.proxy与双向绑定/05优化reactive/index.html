@@ -1,0 +1,78 @@
+<script>   
+  
+    let callbacks = new Map();   
+
+    //po.a.b它访问到的proxy跟 use effect 调用的那一遍它访问到的proxy其实不是同一个。所以需要一张全局的表格来保存它。
+    let reactivties = new Map();    //意思是：我们会把每个对象当它去调用 reactivity 的时候会加一个缓存。因为proxy它本身里面是不存储任何状态的，它们的状态都会代理到object上
+    
+
+    let usedReactivties = [];   
+
+    let object = {
+        a: {b: 3},  //如果是这个对象的话是监听不到的。 
+        // a: 1,
+        b: 2,
+    }
+
+    let po = reactive(object);
+
+
+    effect(() => {
+        console.log('调po.a.b', po.a.b)     //级联的情况    
+    })
+
+       
+    function effect(callback){
+        
+        usedReactivties = [];   
+        callback();                     
+        console.log('usedReactivties',usedReactivties);
+       
+        for(let reactivity of usedReactivties){
+            if(!callbacks.has(reactivity[0])){  
+                callbacks.set(reactivity[0], new Map());   
+            }
+            if(!callbacks.get(reactivity[0]).has(reactivity[1])){  
+                callbacks.get(reactivity[0]).set(reactivity[1], []);   
+            }           
+            callbacks.get(reactivity[0]).get(reactivity[1]).push(callback);
+
+        }
+    }
+
+    function reactive(object){
+        // reactive是一个无状态的函数，所以可以对它进行缓存。
+        // 所有的reactivity都一样，都不存东西。
+        if(reactivties.has(object)){
+            return reactivties.get(object);
+        }
+
+
+        let proxy = new Proxy(object, {
+            set(obj, prop, val){
+                obj[prop] = val;
+                
+                if(callbacks.get(obj))  
+                    if(callbacks.get(obj).get(prop))  
+                        for(let callback of callbacks.get(obj).get(prop)){
+                            callback();
+                        }
+                return obj[prop];
+            },
+            get(obj, prop){                
+                usedReactivties.push([obj, prop]);
+                // 当get的prop是一个对象的时候，就需要给它套一个reactivity
+                if(typeof obj[prop] === "object"){
+                    return reactive(obj[prop]);
+                }
+
+                return obj[prop];
+            }
+        })
+
+        reactivties.set(object, proxy);
+
+        return proxy;
+    }
+
+</script>

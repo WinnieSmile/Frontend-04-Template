@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <input id="r" type="range" min=0 max=255/>
+    <input id="g" type="range" min=0 max=255/>
+    <input id="b" type="range" min=0 max=255/>
+    <div id="colora" style="width: 100px; height: 100px;"></div>
+    
+    <script>    
+        let callbacks = new Map();       
+        let reactivties = new Map();    
+        
+    
+        let usedReactivties = [];   
+    
+        let object = {
+            r: 1,
+            g: 1,
+            b: 1
+        }
+    
+        let po = reactive(object);
+    
+    
+        effect(() => {
+            // 单向的数据绑定：从数据到input
+            document.getElementById("r").value = po.r;   //po.r变的时候，input的值也跟着变，例如：po.r = 10; //10         
+        })
+        effect(() => {
+            document.getElementById("g").value = po.g;        
+        })
+        effect(() => {
+            document.getElementById("b").value = po.b;        
+        })
+    
+        // 变成双向绑定
+        document.getElementById("r").addEventListener("input", event => po.r = event.target.value)
+        document.getElementById("g").addEventListener("input", event => po.g = event.target.value)
+        document.getElementById("b").addEventListener("input", event => po.b = event.target.value)
+            
+        // 总的effect来控制color
+        effect(()=>{
+            // console.log('找到',document.getElementById("colora"))
+            document.getElementById("colora").style.backgroundColor = `rgb(${po.r}, ${po.g}, ${po.b})`;
+            // console.log('vv',`rgb(${po.r}, ${po.g}), ${po.b}`)
+        })
+    
+        function effect(callback){
+            
+            usedReactivties = [];   
+            callback();                     
+            console.log('usedReactivties',usedReactivties);
+            
+            for(let reactivity of usedReactivties){
+                if(!callbacks.has(reactivity[0])){  
+                    callbacks.set(reactivity[0], new Map());   
+                }
+                if(!callbacks.get(reactivity[0]).has(reactivity[1])){  
+                    callbacks.get(reactivity[0]).set(reactivity[1], []);   
+                }           
+                callbacks.get(reactivity[0]).get(reactivity[1]).push(callback);
+    
+            }
+        }
+    
+        function reactive(object){
+            // reactive是一个无状态的函数，所以可以对它进行缓存。
+            // 所有的reactivity都一样，都不存东西。
+            if(reactivties.has(object)){
+                return reactivties.get(object);
+            }
+       
+            let proxy = new Proxy(object, {
+                set(obj, prop, val){
+                    obj[prop] = val;
+                    
+                    if(callbacks.get(obj))  
+                        if(callbacks.get(obj).get(prop))  
+                            for(let callback of callbacks.get(obj).get(prop)){
+                                callback();
+                            }
+                    return obj[prop];
+                },
+                get(obj, prop){                
+                    usedReactivties.push([obj, prop]);
+                    // 当get的prop是一个对象的时候，就需要给它套一个reactivity
+                    if(typeof obj[prop] === "object"){
+                        return reactive(obj[prop]);
+                    }
+    
+                    return obj[prop];
+                }
+            })
+    
+            reactivties.set(object, proxy);
+    
+            return proxy;
+        }
+    </script>
+
+
+    
+</body>
+</html>

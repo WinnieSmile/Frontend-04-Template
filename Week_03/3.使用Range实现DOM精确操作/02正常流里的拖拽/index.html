@@ -1,0 +1,96 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-09-23 23:24:11
+ * @LastEditTime: 2020-09-25 20:20:44
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \Frontend-04-Template\Week_03\3.使用Range实现DOM精确操作\02正常流里的拖拽\index.html
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="container">
+        文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字 文字
+    </div>
+    <div id="dragable" style="width: 100px; height: 100px; background-color: pink;"></div>
+    <script>       
+        let dragable = document.getElementById("dragable");
+        let baseX = 0; baseY = 0;  //基础位置（下一次拖动是在上一次拖动的位置基础上拖动的）
+
+        dragable.addEventListener("mousedown", function(event){
+            let startX = event.clientX, startY = event.clientY;
+
+            let up = event => {
+                baseX = baseX + event.clientX - startX;     //鼠标拖拽的每次都是它的变化的量。
+                baseY = baseY + event.clientY - startY;
+                document.removeEventListener("mousemove", move)
+                document.removeEventListener("mouseup", up)
+            };
+            let move = event => {
+                // console.log('event',event);
+                dragable.style.transform = `translate(${baseX + event.clientX - startX}px, ${baseY + event.clientY - startY}px)`   //鼠标走到哪就让translate到哪。
+                // 用鼠标的起始点来做一个差值。
+                
+            }
+
+            document.addEventListener("mousemove", move)
+            document.addEventListener("mouseup", up)
+            
+        }) 
+
+        let ranges = [];  //把这些range存起来
+        let container = document.getElementById("container");
+        // 取到文本节点的里面的文字的长度，所以说这里取了 childNodes[0]，然后再取它的 textContent，然后就得到里边的文字，然后按照它的长度来给它插入。
+        for(let i = 0; i < container.childNodes[0].textContent.length; i++){
+            let range = document.createRange();
+            range.setStart(container.childNodes[0], i);   // container里边只有一个textNode，也就是childNodes[0]
+            range.setEnd(container.childNodes[0], i);
+
+            // console.log('每个range的位置',range.getBoundingClientRect());   //拿到range的位置 x y
+            ranges.push(range);            
+        }
+
+        // 写一个函数：找到这些range里边离某一个point最近的range  （与在一堆树里边找最大的是一样的找法）
+        function getNearest(x, y){  //传入point: x y
+            let min = Infinity;     // 因为要找最小的，所以给它初值设一个 Infinity,这样任何值都可以把它替掉
+            let nearest = null;     //一开始就是没有，找到触发一个就可以了
+
+            for(let range of ranges){
+                let rect = range.getBoundingClientRect();               //range随着变化range是不会变的，但是BoundingClientRect它是 CSSOM，所以说一旦界面发生了一些变化，它就会发生一些变化
+                let distance = (rect.x - x) ** 2 + (rect.y - y) ** 2;   //distance是距离，不需要找distance具体是什么，需要找最小的那一个，所以不需要开根号。
+                if(distance < min){  //如果distance小于min，说明新的range才是距离我们的插入点最近的一个。然后再把它赋值给min，重复下次找最小操作
+                    nearest = range;
+                    min = distance;  //这样就会找出最小的一个了
+                }
+            }
+            return nearest;
+        }
+
+        // getNearest(0,0)   //通过调用getNearest来实现它最近的一个range
+        // getNearest(0,0).getBoundingClientRect()
+
+    </script>
+    
+</body>
+</html>

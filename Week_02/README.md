@@ -1,11 +1,3 @@
-<!--
- * @Author: your name
- * @Date: 2020-08-23 22:33:08
- * @LastEditTime: 2020-09-15 21:53:52
- * @LastEditors: Please set LastEditors
- * @Description: In User Settings Edit
- * @FilePath: \Frontend-04-Template\Week_02\README.md
--->
 # 一、寻路
 ## 广度优先搜索  
 
@@ -89,7 +81,7 @@ number数字；加减运算符；允许编程语言的使用者添加一些格�
 
 **四则运算语法的定义**  
 
-使用 javascript 的产生式来定义加法和乘法运算，做成一个嵌套的结构。  
+使用 JavaScript 的产生式来定义加法和乘法运算，做成一个嵌套的结构。  
 加法是由左右两个乘法组成的，并且加法是可以连加的，加法是一个重复自身的这样的一个序列。定义里会有一个递归这样的产生式的结构，这也是做产生式的时候处理无限的列表的时候的一个常用的手法。  
   
 MultiplicativeExpression 是乘法运算。  
@@ -133,18 +125,14 @@ EOF（End of File）不是一个真实可见的字符，在分析中，如果有
 
 但是又不止这两种情况，如乘法表达式可能是 Number MultiplicativeExpression AdditiveExpression 等一系列的可能性，所以说它第一个符号有三种可能性。    
 如果遇到 Number 或者 MultiplicativeExpression 那是不是应该把它直接当做乘法去处理呢？只看一个字符是不够的。需要看它第二个输入的元素是乘号除号还是加号减号，因为原来的 MultiplicativeExpression 还是在的。  
-从左到右扫描，然后从左到右去归并的这样的一个语法分析的算法，这就是 LL语法分析。
-
-
-## LL语法分析
-每一个产生式对应着一个函数
+从左到右扫描，然后从左到右去归并的这样的一个语法分析的算法，这就是 LL语法分析。每一个产生式对应着一个函数。
 
 ## 应用场景
 编译原理  
-理解vue如何解析template成ast抽象树；  
+理解 vue 如何解析 template 成 ast 抽象树；  
 理解（逆）波兰表达式如何处理计算式；  
-理解js词法分析，如何用token标记每句源码。
-上传代码
+理解 js 词法分析，如何用 token 标记每句源码。
+
 
 
 

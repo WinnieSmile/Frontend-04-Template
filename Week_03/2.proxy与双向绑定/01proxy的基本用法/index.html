@@ -1,0 +1,31 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-09-20 23:53:21
+ * @LastEditTime: 2020-09-21 21:17:24
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \Frontend-04-Template\Week_03\2.proxy与双向绑定\01proxy的基本用法\index.html
+-->
+<script>
+    // 创建一个对象，这个object是不可observe的一个对象，是一个单纯的数据存储。这也是JavaScript最底层的机制。
+    // 如果想让一个对象，既想让它设置起来像一个普通对象一样，又想让它被监听，此时就可以通过proxy来把object做一层包裹。
+    let object = {
+        a: 1,
+        b: 2,
+    }
+
+    // 第一个要把object传进去，第二个对象是一个config对象，这个config对象里面就包含了所有的对 po 这个对象去做的钩子。
+    // object收到的就是proxy这个被代理的对象。实际上调用原始的object去设置它的值并不会触发proxy上hook的这些函数。只有在po才会执行到proxy对象的行为，object还是原来的object。可以把po理解为一个特殊的对象。po上面的所有行为都是可以被重新再去指定的。
+    let po = new Proxy(object, {
+        // set钩子，当设置对象属性的时候，就会触发set函数。
+        set(obj, prop, val){
+            console.log('设置对象的prop', obj, prop, val);
+        }
+        // getPrototype等等都可以通过proxy的config去改变它的行为。
+    })
+
+    // po.a = 3    // 设置对象的prop {a: 1, b: 2} a 3
+                   // 3
+
+
+</script>

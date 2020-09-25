@@ -1,0 +1,60 @@
+<script>   
+    // let callbacks = [];
+    let callbacks = new Map();   //将callback用new Map来存，因为我们要把这个object作为一个key，然后然它去找到reactivities
+    let usedReactivties = [];   //全局的变量
+
+    let object = {
+        a: 1,
+        b: 2,
+    }
+
+    let po = reactive(object);
+
+    // 在effect里边调用一次effect的函数，在reactive里把它注册进 usedReactivties里面，这样执行完之后就知道它用了哪些变量了
+
+    effect(() => {
+        console.log('直接监听po上的属性', po.a)       
+    })
+
+       
+    function effect(callback){
+        // callbacks.push(callback);
+        usedReactivties = [];   //先把usedReactivties清空，然后调一下callback
+        callback();             //在调callback的过程中，如果它真的引到了reactive对象，po这类的对象，那么它就一定会在get里面发生一个注册的行为。        
+        console.log('usedReactivties',usedReactivties);
+
+        // 每个reactivity都是一个二元组，它的0就是这个对象。reactivity有可能发生多次的注册所以说我们要写一些防御性的代码。
+        for(let reactivity of usedReactivties){
+            if(!callbacks.has(reactivity[0])){  //没有话就加进去
+                callbacks.set(reactivity[0], new Map());   //设两层，第一层放对象，第二层放属性然后才能找到这个callback，所以这里要set一个new Map进去。
+            }
+            if(!callbacks.get(reactivity[0]).has(reactivity[1])){  
+                callbacks.get(reactivity[0]).set(reactivity[1], []);   //第二层
+            }
+            // 前面已经把空的地方都已经排除了，那么我们就可以在两级的索引上给它push callback进去。
+            callbacks.get(reactivity[0]).get(reactivity[1]).push(callback);
+
+        }
+    }
+
+    function reactive(object){
+        return new Proxy(object, {
+            set(obj, prop, val){
+                obj[prop] = val;
+                // 因为已经有索引了，所以就不需要再去循环整个callbacks了。
+                if(callbacks.get(obj))  //有对象
+                    if(callbacks.get(obj).get(prop))  //有属性
+                        for(let callback of callbacks.get(obj).get(prop)){
+                            callback();
+                        }
+                return obj[prop];
+            },
+            get(obj, prop){
+                // console.log(obj, prop);
+                usedReactivties.push([obj, prop]);
+                return obj[prop];
+            }
+        })
+    }
+
+</script>

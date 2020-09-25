@@ -1,0 +1,60 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-09-23 21:48:03
+ * @LastEditTime: 2020-09-23 23:24:01
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \Frontend-04-Template\Week_03\3.使用Range实现DOM精确操作\01基本拖拽\index.html
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="dragable" style="width: 100px; height: 100px; background-color: pink;">
+
+    </div>
+    <script>
+        /* drag事件：dragdrop。完全跟随鼠标移动，只使用drag事件是做不到的。
+           使用mousedown、mousemove、mouseup这样的一组事件来模拟。
+
+        */
+        
+        /*
+            为了让mousedown事件响应 mousemove和mouseup事件，我们需要在mousedown的事件里面去监听这两个事件。（这是因为只有我们的鼠标按下去之后，我们去监听事件才能在性能和逻辑上都正确。）
+            如果把 addEventListener mousemove 写在 mousedown之外，那么不论什么时候只要鼠标在它上面一移动这个事件就触发了。即使用flag让它在mousedown没有发生的情况下，它也不去触发。那么它在性能上总是要多执行一遍这个函数，这样是不合理的。
+            实际上mousemove和mouseup都是要在document上去进行监听的。如果在dragable上监听，就容易出现当我们鼠标一下子拖得快了移开了dragable的区域，那么它就会发生一个掉下来，拖断现象。      
+            在mouseup的时候要把mousemove和mouseup再用removeEventListener去掉，所以说必须要用两个变量把它保存起来。let up 和 let move
+        */ 
+
+        let dragable = document.getElementById("dragable");
+        let baseX = 0; baseY = 0;
+
+        dragable.addEventListener("mousedown", function(event){
+            let startX = event.clientX, startY = event.clientY;
+
+            let up = event => {
+                baseX = baseX + event.clientX - startX;     //鼠标拖拽的每次都是它的变化的量。
+                baseY = baseY + event.clientY - startY;
+                document.removeEventListener("mousemove", move)
+                document.removeEventListener("mouseup", up)
+            };
+            let move = event => {
+                // console.log('event',event);
+                dragable.style.transform = `translate(${baseX + event.clientX - startX}px, ${baseY + event.clientY - startY}px)`   //鼠标走到哪就让translate到哪。
+                // 用鼠标的起始点来做一个差值。
+                
+            }
+
+            document.addEventListener("mousemove", move)
+            document.addEventListener("mouseup", up)
+            
+        }) 
+
+    </script>
+    
+</body>
+</html>
