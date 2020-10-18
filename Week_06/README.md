@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2020-08-23 22:33:08
- * @LastEditTime: 2020-10-18 19:46:52
+ * @LastEditTime: 2020-10-18 21:46:14
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \Frontend-04-Template\Week_06\README.md
@@ -17,8 +17,9 @@ Toy-Browser
 现代浏览器还包括一些功能性东西。比如说收藏、历史。Toy-Browser 是为了帮助我们理解浏览器的工作原理。    
 整个浏览器的一张完整的架构图： 
 `URL` → HTTP → `HTML` → parse → `DOM` → css computing → `DOM with CSS` → layout → `DOM with position` → render → `Bitmap`    
-URL部分，首先是会经过一个HTTP请求和解析HTTP回应的这样的一个过程，把URL里面包含的HTML给取出来，然后对文本的HTML进行 parse，这个就是一个一般的文本分析或者说是编译的一个初级的技术，把HTML变成我们所熟悉的Dom树，有了Dom树以后，它是一棵光秃秃的Dom树，上面除了HTML本身包含的信息什么都没有，所以下一个步骤就需要进行 CSS computing，对这个Dom树上对应着哪些 CSS 规则，哪些 CSS规则会发生叠加，会发生覆盖，把最终的结果给它计算出来，这就是  Css computing ，计算完了之后，就会得到一棵带 CSS 属性的 Dom树（带样式的 Dom）,CSS全称叫做 级联样式表，级联样式表是不可能待在 Dom树上的。有了CSS属性，就可以进行 layout（布局、排版），最终把这棵 Dom树上面的所有元素产生的盒的位置计算出来（获得位置不是Dom本身，而是CSS最后生成的核）。有了Dom position 之后，就可以进行渲染render。通过render就可以把Dom树该有背景图的有背景图，该有背景色的有背景色，最后把它画到一张图片上。然后就可以通过操作系统和硬件驱动提供的 API 接口，最终展示出来。   
-## 状态机   
+URL部分，首先是会经过一个HTTP请求和解析HTTP回应的这样的一个过程，把URL里面包含的HTML给取出来，然后对文本的HTML进行 parse，这个就是一个一般的文本分析或者说是编译的一个初级的技术，把HTML变成我们所熟悉的Dom树，有了Dom树以后，它是一棵光秃秃的Dom树，上面除了HTML本身包含的信息什么都没有，所以下一个步骤就需要进行 CSS computing，对这个Dom树上对应着哪些 CSS 规则，哪些 CSS规则会发生叠加，会发生覆盖，把最终的结果给它计算出来，这就是  Css computing ，计算完了之后，就会得到一棵带 CSS 属性的 Dom树（带样式的 Dom）,CSS全称叫做 级联样式表，级联样式表是不可能待在 Dom树上的。有了CSS属性，就可以进行 layout（布局、排版），最终把这棵 Dom树上面的所有元素产生的盒的位置计算出来（获得位置不是Dom本身，而是CSS最后生成的核）。有了Dom position 之后，就可以进行渲染render。通过render就可以把Dom树该有背景图的有背景图，该有背景色的有背景色，最后把它画到一张图片上。然后就可以通过操作系统和硬件驱动提供的 API 接口，最终展示出来。     
+
+## （一）状态机   
 有限状态机处理字符串     
 （处理字符串是整个 browser 里面贯穿始终的这样的技巧。）   
 * 每一个状态都是一个机器 
@@ -58,7 +59,7 @@ while(input){
 
 ### 使用有限状态机处理字符串  
 代码实例：
-**在一个字符串中，找到字符 "a"**
+**例1：在一个字符串中，找到字符 "a"**
 ```javascript
     function match(string){
         for(let c of string){
@@ -73,7 +74,7 @@ while(input){
 这个算法是一个 O(n)的算法，就是假设字符串的长度是 n，那么我们的算法它时间会跟 n 成正比的。  
 另外写法：用for循环、用chartAt去找字符 a   
 
-**在一个字符串中，找到字符 "ab"**  
+**例2：在一个字符串中，找到字符 "ab"**  
 要求：不能使用正则表达式。（正则表达式大部分是可以用有限状态机去实现的，这里是在用一个比正则表达式更底层的东西。不用更高级的正则表达式）展示有限状态机是怎样去处理字符串的。  
 ```javascript
     function match(string){
@@ -92,7 +93,7 @@ while(input){
     console.log('是否找到ab', match("I acbm groot"))  //false
     console.log('是否找到ab', match("I abm groot"))   //true
 ```
-**在一个字符串中，找到字符"abcdef"**  
+**例3：在一个字符串中，找到字符"abcdef"**  
 非状态机版本的代码：  
 ```javascript
     function match(string){
@@ -198,4 +199,111 @@ while(input){
 解释：
 start函数： 
 找到c为a的话就切换到下一个状态，就是foundA，否则状态不变就返回自身。当我们找到foundA以后，在foundA的状态里面就集中精力去找b，一旦找到b，我们就切换到状态foundB，这个时候foundA和foundB就已经不是布尔型变量了。它是一个状态函数。以此类推foundA foundB，foundA状态找b切换到foundB，foundB状态下找c去切换到foundC，以此类推，一直到foundE的时候我们会返回一个end状态。end状态就是一个结束状态。结束状态就标志着我们已经找到了我们想找的字符。小技巧：让end状态永远返回end，这个状态叫做一个 trap,就是一个陷阱，一旦进入了end的状态它就不会再进入到别的状态了。 当找到了字符串abcd之后，不管后面进来了多少个字符，其实它都是一个已经找到的状态。，这样我们就把他的状态控制在end里，这样返回值就可以用state等于end来判断它是不是已经找到了我们所有的状态。  
-**我们如何用状态机处理诸如 "abcabx"这样的字符串？** 
+**例4：我们如何用状态机处理诸如 "abcabx"这样的字符串？（状态机处理重复字符串）**    
+*（如果字符有对应的重复多个、或者是同一个字符要重复多个、或者是不同的字符都可以比如说a和b都可以。可以通过状态里面的 if else 来实现）*   
+解析：因为abcabx中间存在着一个重复的问题，当我们遇到第一个abc走完，遇到第二个a、第二个b的时候，如果它不是x而是c的话，我们必须要把它当做下一个字符的abc开头来处理，如果是aby那么就又可以回到从头开始处理的逻辑，如果是aba，我们又要回到刚找到a的状态，所以这个地方就又需要用到 reConsume的技巧。整个状态机的逻辑，start函数逻辑没有变，foundA、foundB这个逻辑也都没有变，foundC之后我们会写一个foundA2的函数。 
+```javascript
+    function match(string){
+        let state = start;  
+        for(let c of string){
+            state = state(c); 
+        }
+        return state === end;
+    }
+
+    function start(c){
+        if(c === "a"){
+            return foundA;  
+        }else {
+            return start;
+        }
+    }
+
+    function end(c){
+        return end;
+    }
+
+    function foundA(c){
+        if(c === "b"){
+            return foundB;
+        }else {
+            return start(c);   //使用reConsume的技巧return了一个start(c)
+        }
+    }
+
+    function foundB(c){
+        if(c === "c"){
+            return foundC;
+        }else{
+            return start(c);  
+        }
+    }
+
+    function foundC(c){
+        if(c === "a"){
+            return foundA2;  //foundA2函数，这是找到第二个a的状态
+        }else {
+            return start(c);
+        }
+    }
+
+    function foundA2(c){
+        if(c === "b"){
+            return foundB2;  //foundA2 它的后边如果接的是一个b，它就会进入foundB2
+        }else {
+            return start(c);
+        }
+    }
+
+    // foundB2：如果c它是x的话，直接进入end状态了，如果不是x，它还有可能是c如果也不是c，它还有可能是a所以我们要让它回到前面foundB的状态，由foundB状态再去处理一下，如果foundB状态处理完了之后，发现它也不是c，那么我们再让它回到 start状态，把c传给start，也就是说这个时候一次状态最多会经过三个状态函数的处理。
+    function foundB2(c){
+        if(c === "x"){
+            return end;  
+        }else {
+            return foundB(c);
+        }
+    }
+
+    
+    console.log('是否找到字符串abcabcabx', match("abcabcabx"))  //true
+
+```
+额外内容：  
+* 我们如何使用状态机处理诸如 "abcabx"这样的字符串？  
+* 作业：使用状态机完成 "abababx" 的处理。   
+* 可选作业：我们如何用状态机处理完全未知的 pattern ?  
+如果pattern字符串是完全未知的，如何自动化的生成状态机里面的状态呢？
+    * 参考资料：字符串KMP算法  
+    （不要用循环的KMP算法，而是要用状态机的KMP算法去实现。）
+    https://en.wikipedia.org/wiki/Knuth%E2%80%93Morris%E2%80%93Pratt_algorithm
+
+## （二）HTTP请求  
+### HTTP的协议解析    
+**ISO-OSI七层网络模型**  
+应用层  
+表示层  
+会话层  
+传输层  
+网络层  
+数据链路层  
+物理层   
+**解析：**
+物理层和数据链路层就是我们俗称的 4G 5G 或者是WiFi，这两层主要完成的目标时对数据的一个准确的传输，它传输都是点对点的传输，也就是必须要这两个东西有一个直接的连接它才能够进行传输。  
+再往上就是非常著名的网络层，在网络层最流行的协议就是 Internet（因特网），平时我们说的上网包含两层意思：一层是在我们网页所在的应用层的协议，这个网叫外网，在它底层负责数据传输的东西叫做 Internet，平时说上网不会特别区分它们。Web的全称是World Wide Web，它的正式的中文翻译叫万维网。而底层的Internet其实叫做因特网。还有一个网络的类型是公司内网叫Intranet。网络层可以认为它指的就是 Internet层。Internet协议就是我们俗称的IP协议（Internet Protocol），在Internet之上就涉及到各种传输协议，其中最著名的就是 TCP和UDP，因为网页是需要可靠传输，所以我们只关心TCP，再往上就是会话层、表示层、应用层，基本在大部分的应用里边都是混着不分的。对于HTTP来说也差不多，HTTP一层它就包含了会话表示和应用所有的基础设施。对应到node的代码里就是：TCP层对应的是一个包，require("net"); 而HTTP层对应的一个包就是 require("http")。   
+要想实现一个HTTP协议，肯定是不能去引这个http包，做 toy browser就是为了了解浏览器的工作原理。如果用了http这个包，就没法了解浏览器原理，因为它直接就帮我们把 HTTP请求的事都做完了。所以要从底层去做，就是去 require("net")这一层，然后去完成 HTTP请求和HTTP回应解析。
+**TCP与IP的一些基础知识** 
+**TCP**
+* 流  
+* 包  
+* 端口
+* IP地址  
+* require('net');  
+* libnet / libpcap  
+在TCP层传输数据的概念是流（例如水流、物流），流它是一个没有明显分割单位的一种东西。TCP协议的传输概念也是这样，它没有一个明显的分割单位，它只保证前后的顺序是正确的，而TCP对应的一个非常重要的概念叫做端口，因为TCP协议是被计算机里面的软件所使用的，而每一个软件都会去从网卡去拿数据，具体哪一个数据是分配给哪一个软件呢，这个就需要用到端口这个概念，一个计算机的网卡是根据端口把接到的数据包分给各个应用的。然后对应到 node里面，它所依赖的库就是 require('net')包。而TCP它的传输的概念就是一个一个的数据包的概念，每一个数据包它也是可大可小，这取决于整个网络中间设备的传输的能力。而IP它是根据地址去找到这个包应该从哪到哪。在整个Internet上的连接非常负责，中间就会有一些大型的路由节点，像我们平时家里上网，它一般会先连到小区的节点，然后再上行到电信的骨干网络上去，然后再逐级比如说我们要到国际上的某个地址，我们就会去到国际的主干线上去，国内的地址它可能直接就给他们转过去了。Internet是一个非常负责的东西，而IP地址就是唯一的标识了，连入Internet的每一个设备。    
+IP包一定是以IP地址来寻找自己要传输到哪里的。对应IP协议的一些底层库，在node里是没有的，但是node底层它肯定要调到 C++ 的这两个库，一个叫做 libnet，一个叫做 labpcap，libnet负责构造IP包并且发送，而labpcap负责从网卡抓所有的流经你的网卡的IP包。如果我们用交换机而不是路由器去组网，会发现一些有意思的现象；如果用底层labpcap的包，就能抓到很多本来不属于发给你的IP地址。实际上在我们正常的逻辑里，网卡就会把这些包都给丢去，但是如果你用的是IP层的一个基础库，你就都能够把它抓出来，这个也是我们很多特殊的IP协议的处理所需要用到的技术。  
+**HTTP**
+* Request
+* Response   
+HTTP是由Request和Response这样的过程组成的，相当于TCP这种全双工通道。（全双工就是你可以给我发，我也可以给你发，不存在什么优先关系）HTTP必须先由客户端发起一个 request，然后服务端回来一个 response，所以每一个request它一定对应着一个response，如果这个response多了，或者request多了，都说明这个协议出错，它在TCP的基础上看似做了更严格更死的规定，但是其实在实践过程中发现这种模式还挺好，所以HTTP到今天已经变成了互联网上最流行的一个协议。  
+**服务端环境准备**
+HTTP是由Request和Response这样的过程组成的，相当于TCP这种全双工通道。（全双工就是你可以给我发，我也可以给你发，不存在什么优先关系）HTTP必须先由客户端发起一个 request，然后服务端回来一个 response，所以每一个request它一定对应着一个response，如果这个r
