@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2020-08-23 22:33:08
- * @LastEditTime: 2020-10-18 21:47:29
+ * @LastEditTime: 2020-10-19 22:47:55
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \Frontend-04-Template\Week_06\README.md
@@ -306,4 +306,43 @@ IP包一定是以IP地址来寻找自己要传输到哪里的。对应IP协议�
 * Response   
 HTTP是由Request和Response这样的过程组成的，相当于TCP这种全双工通道。（全双工就是你可以给我发，我也可以给你发，不存在什么优先关系）HTTP必须先由客户端发起一个 request，然后服务端回来一个 response，所以每一个request它一定对应着一个response，如果这个response多了，或者request多了，都说明这个协议出错，它在TCP的基础上看似做了更严格更死的规定，但是其实在实践过程中发现这种模式还挺好，所以HTTP到今天已经变成了互联网上最流行的一个协议。  
 
+**服务端环境搭建**
+```javascript
+    const http = require('http');
+
+    http.createServer((request, response) => {
+        let body = [];
+        request.on('error', (err)=>{
+            console.err(err);
+        }).on('data', (chunk)=>{
+            body.push(chunk.toString());
+        }).on('end', ()=>{
+            body = Buffer.concat(body).toString();
+            console.log('body：', body);
+            response.writeHead(200, { 'Content-Type': 'text/html' });
+            response.end(' Hello World\n ');
+        })
+    }).listen(8088);
+
+    console.log('server staeted');
+
+```
+
+通过require一个http的包，然后调用 http 的createServer，然后按照它的格式在这个里面，我们去接收它的 request 里面的内容，然后request需要接受一个 on error、on data、on end ，三个不同的这样的事件。
+on error打印出来， on data 把这个数据暂存到一个body的数组中，然后把body去做一次concat，然后把这个数组里的内容拼起来，然后我们这地方加了一个console log 方便去解析。由于我们并不需要去根据request去处理什么东西，所以我们这里写死一个response的值，我们写一个head、写一个end就可以了。我们至少需要写一个 'Content-Type': 'text/html'，body部分随便写一份HTML代码（此处写的是 Hello World ）
+**HTTP协议**
+```javascript
+    POST/HTTP/1.1                                   //Request line
+    Host:127.0.0.1                                  //headers
+    Content-Type:application/x-www-from-urlencoded  //headers
+
+    field1=aaa&code=x%3D1                           //body
+```
+
+HTTP协议是一个叫做文本型的协议，文本型协议一般来说我们是跟二进制型的协议相对的，文本型协议就意味着说这个协议里面
+所有的内容都是字符串，它的每一个字节都会被理解成字符串的一部分，比如说要传个1，不是说把这个bite给它传过去，也不会把1放到一个字节里面去传过去，而是会用一个字符1，也就是 Unicode或者 ASCII 编码里面的值，而 HTTP 协议正是这样一种文本型的协议。所以因为 HTTP 协议是在TCP协议的上层，所以说流淌在TCP协议的流里面的所有的内容都可以视为字符。  
+HTTP协议的request 第一行叫做 request line， request line又包含三个部分，第一个部分叫做 method，method 最常见的是 POST和 GET，HTTP还规定了其他的method，比如说 options等。   
+它第二项就是一个路径是 path ，path默认它就是一个斜杠，在访问浏览器的时候也可以看到在域名后面的斜杠后面的内容是路径。这个是作为HTTP协议的一个内容被放上去的，最后是一个 HTTP和HTTP版本，此处用的是老的版本1.1。实际上HTTP协议已经有2.0 3.0这些新版本了。  
+后边的部分是headers，它包含多行的，它会每一行是以一个冒号分隔的 key 和 value 这样的一个键值对的结构。headers行数不固定，headers的结束是一个空行为标志进行结束的。  
+后边的是body部分，body部分是由 Content-Type 来决定的。Content-Type规定了什么格式，那么body就用什么格式来写，总体上可以认为body也是一个kv的结构，但是视 Content-Type 不同，它里面的不同的会用不同的分隔的字符和不同的格式。然后所有HTTP里面的换行按照规定都是 \r \n ，它是两个字符组成的一个换行符。这也是一个比较容易去解析错的地方
 
