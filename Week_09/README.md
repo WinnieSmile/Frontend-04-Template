@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2020-08-23 22:33:08
- * @LastEditTime: 2020-10-23 00:05:49
+ * @LastEditTime: 2020-10-28 00:19:38
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \Frontend-04-Template\Week_09\README.md
@@ -121,39 +121,63 @@ Value其实除了包含我们正常的值，它可能还会有一些函数类型
 
 level3中： 10.1. Grammar   
 
-产生式的根元素，它是由 selectors_group，selectors_group 它是由 COMMA，就是逗号分隔的 selector 构成的，也就是说我们平时写的 selector 的时候，逗号是优先级最低的，它的结合性是排在最后，每一个selector是由一个simple_selector_sequence组成的，simple_selector_sequence是用 combinator 相连接的，combinator有几种：PLUS加号、GREATER大于号、TILDE波浪线、空格选择器。selector是由combinator连接的simple_selector_sequence，而simple_selector_sequence是由简单选择器构成的，简单选择器有类型选择器（什么都不带的）、universal选择器（星号）、HASH（带#的）、class选择器（带.的）、attrib选择器（方括号[]）、伪类或者伪元素（以单冒号或者双冒号开头的一批选择器）、negation（带NOT的选择器，是以:NOT开头的）。
+产生式的根元素，它是由 selectors_group，selectors_group 它是由 COMMA，就是逗号分隔的 selector 构成的，也就是说我们平时写的 selector 的时候，逗号是优先级最低的，它的结合性是排在最后，每一个selector是由一个simple_selector_sequence组成的，simple_selector_sequence是用 combinator 相连接的，combinator有几种：PLUS加号、GREATER大于号、TILDE波浪线、空格选择器。selector是由combinator连接的simple_selector_sequence，而simple_selector_sequence是由简单选择器构成的，简单选择器有类型选择器（什么都不带的）、universal选择器（星号）、HASH（带#的）、class选择器（带.的）、attrib选择器（方括号[]）、伪类或者伪元素（以单冒号或者双冒号开头的一批选择器）、negation（带NOT的选择器，是以:NOT开头的）。    
 
-
+rule：   
+Selector：select_group
+          selector：> < sp> + -
+          simple_selector：type（类型）  *  .  #   []   :（伪类）   ::（伪元素）   :not()      
+Declaration：key：variables、properties    
+             Value：calc、number、length、
 
 
 
 ## （四）收集标准
+https://www.w3.org/TR/
 
+```javascript    
 
+Array.prototype.slice.call(document.querySelector("#container").children).filter(e => e.getAttribute("data-tag").match(/css/)).map(e => ({name:e.children[1].innerText, url:e.children[1].children[0].href}))
 
+// 把父元素的container的children，也就是所有的这些list给它转成一个真正的数组，然后对这个数组进行过滤，把所有带CSS tag的元素过滤出来，这里match(/css/)不能用相等，因为它可能是有多个标签的，接下来我们对它做一个映射，我们根据DOM结构，把它的标题文本和URL取出来，然后我们就能得到DOM的这样一份比较干净的CSS标准的列表。
 
+//然后我们把它做 JSON.stringify
+JSON.stringify(Array.prototype.slice.call(document.querySelector("#container").children).filter(e => e.getAttribute("data-tag").match(/css/)).map(e => ({name:e.children[1].innerText, url:e.children[1].children[0].href})))
 
+```
 
 
 ## （五）CSS总论总结
-
-
-
-
-
-
-
-
-
+* CSS语法      
+* at-rule    
+* selector    
+* variables     
+* value      
+* 实验
 
 
 # 选择器
 ## 选择器语法
+* 简单选择器    
+  `星号*`         ： 通用选择器，可以选中任何的元素，相当于没有选择器      
+  `div svgla`     ： div 它是这种叫做 type selector 类型选择器，它选择的是我们元素的tagName属性，HTML的命名空间主要有三个，HTML、SVG、MathML。如果要选SVG或者MathML中的元素就必须要用到单竖线，单竖线是我们的命名空间分隔符。在HTML中的分隔符是冒号:  CSS选择器里就是单竖线。namespace需要用到 @nameSpace的 at-rule去声明一下，这两个是配合使用的。    
+  `.cls`          ：  以点开头的选择器，会选中一个class，class是可以用空白做分隔符，指定多个class，.class只要匹配其中的一个就可以了。    
+  `#id`           ： id选择器可以用#开头选中一个id，这个必须是严格匹配，id里面也可以加减号等。     
+  `[attr=value]`  ：    属性选择器，它囊括了class属性选择器和id选择器，attribute 它的完整的语法就是 attr=value，前半部分是name，后半部分是值。这个等号还可以在前面加浪线，表示像class一样。可以支持拿空格分隔的值的序列。如果在前面加单竖线，那么就表示这个属性以这个值开头即可。理论上是用属性选择器代替class选择器和id选择器。
+  `:hover`        ： 伪类，是以冒号开头的。主要是一些元素的特殊的状态。多半来自交互。或者说有一些伪类选择器是带函数的伪类选择器。  
+  `::before`      ：伪元素选择器，一般都是以双冒号开头，实际上在书写的时候以单冒号开头也可以。伪元素相对来说是选中一些原本不存在的元素，如果你不选，这个地方可能就不存在一个元素，如果选的话，就可能多了一个元素。    
 
+* 复合选择器    
+`<简单选择器><简单选择器><简单选择器>`     ：   把简单选择器挨着写，就成了一个复合选择器。它的语义是我们选中的元素必须同时match几个简单选择器，它是一个与的关系。    
+`*或者 div 必须写在最前面`    ： 星或者div是必须写在最前面，伪类伪元素是一定要写在最后面。
+* 复杂选择器   
+`<复合选择器><sp><复合选择器>`     复合选择器用连接符连接就会成为复杂选择器。   
+`<复合选择器>">"<复合选择器>`    
+`<复合选择器>"~"<复合选择器>`   
+`<复合选择器>"+"<复合选择器>`   
+`<复合选择器>"||"<复合选择器>`   
 
-
-
-
+复杂选择器是针对一个元素的结构来进行选择的。复合选择器之间用空格分割表示的是子孙选择器，当前元素必须得有空格左边的这样的一个父级结点或者祖先节点。它可以是父级也可以是父级的父级。空格的写法是从 CSS非常古老的版本，从2.1开始就支持的一种写法。这是CSS选择器最早设计出来的一种复合的方式。大于号连接的父子选择器必须是它的直接上级直接父元素。用浪线、用加号连接的，我们可以针对它的邻接关系进行选择，然后是双竖线，双竖线是 Selector Level 4才有的。当我们做表格的时候，做table的时候，这个是表示可以选中某一个列。还可以用逗号连接，构成一个选择器列表。但是一般来说，不会把逗号算进选择器里面。因为逗号相当于是两个选择器。逗号之间是或的关系。
 
 
 
