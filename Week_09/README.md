@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2020-08-23 22:33:08
- * @LastEditTime: 2020-10-28 00:19:38
+ * @LastEditTime: 2020-11-01 23:32:01
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \Frontend-04-Template\Week_09\README.md
@@ -183,18 +183,137 @@ JSON.stringify(Array.prototype.slice.call(document.querySelector("#container").c
 
 
 ## 选择器的优先级
+简单选择器计数 
+```css  
+   1         2
+  #id div.a#id{          
+    //……
+  }
+```
+选择器优先级其实是对一个选择器里面包含的所有简单选择器进行计数，我们说的选择器列表，不把它视为一个完整的选择器，因为选择器列表它中间是以逗号分隔开的，这些复杂选择器来进行简单选择器计数的。    
 
+在这个例子里，#id空格div.a#id 这个里面包含了两个 id 选择器一个 div 选择器和一个 class 选择器，这个时候，我们根据选择器的优先级，会把选择器的优先级算出来是 0211，在选择器的标准里，有这样的描述，就是说我们会采用一个 N 进制来表示，所以 0211 可以视为它是一个巨大无比的进制里面的 4 位，所以如果我们取这个 N 作为进位，那么 S 整个的优先级也就是 specificity。      
+**specificity 的原理：【记住】**    
+s 就等于 0 乘以 N 的 3 次方加上 2 乘以 N 的二次方，加上 1 乘以 N 的一次方再加 1 ，我们只要取一个足够大的 N 算出来，就是选择器的优先级了。比如说我们取一个 100 万，我们采用 10 进制数，比较容易复合大家的职级，最后算出来的优先级就是 2000001000001 ，像 IE 的老版本，因为N取的值不够大，它要节省内存，取了个 255，所以 256 个 class 就相当于一个 id。后来大部分浏览器都选择了 65536，选择 65536之后基本上就再也没有发生过超过额度的事了。 现在浏览器都会采取一个足够大的值，它会选取一个 16 进制上比较完整的数，一般来说都是 256的整次幂，因为 256 正好是一个字节。    
 
-
-
-
-
-
-
-
+**练习题：**   
+请写出下面选择器的优先级    
+div#a.b .c[id=x]   
+#a:not(#b)     
+*.a   
+div.a   
+  
 
 
 ## 伪类
+* 链接/行为    
+`:any-link`  能够匹配任何的超链接       
+`:link`      匹配还没有访问过的超链接    
+`:visited`   已经访问过的超链接    
+*:link 加 :visited 等于 :any-link* &nbsp;一旦使用 visited之后，就再也没有办法对这个里面的元素去更改文字颜色之外的属性了。这样设计的原理是：一旦使用了 layout 相关的属性，比如说给 visited 把它的尺寸变得大一点，那么它就会影响排版。这样我们就可以通过 JavaScript API 去获取你这个链接它是不是 visited了。一旦你获取了它是否是 visited ，南无此时你就会知道用户访问过哪些网站了。这对于浏览器的安全性来说是一个致命的打击。早期的浏览器给 对visited 在伪类的规则里允许你设置透明度，虽然说你获取不到透明度的属性，但是透明度在渲染上非常的费时间，所以说黑客就加了很多的带透明度的visited的标签，他通过你计算的快慢然后就可以找出来你的元素最后到底是不是访问过了。（不要以为这种纯表现的就和安全没有关系，这个是一个综合的考量，CSS也能造成安全漏洞）    
+`:hover`   用户鼠标挪上去了之后的状态    
+`:active`  表示激活状态     
+`:focus`   焦点在的状况     
+`:target`  链接到当前的目标  【是用于给作为锚点 a 标签使用的，当前的 HASH指向了当前的 a 标签所表示的链接的话，那么它就会激活 target 伪类】
+* 树形结构相关的伪类    
+`:empty` 表示这个元素是否有子元素  
+`:nth-child()`  表示这个元素是父元素的第几个 child。nth-child是一个非常复杂的伪类。它里边要支持一种语法，比如可以在括号里写 even odd 就是奇偶，也可以写 4N+1 3N-1 ，那它分别就会匹配到一种整数的这样的形态。【越是语法复杂越是简单来用，在里面不要写过于复杂的表达式，只用它来处理一下奇偶、逢三个多一个、逢四个多一个等这样的情况】     
+`:nth-last-child()`  从后往前数。   
+empty和nth-last-child 这两个选择器是通过强行写代码的状态来实现的。因为你最开始是不知道它是不是有子元素和最后一个元素。   
+`:first-child :last-child :only-child` first-child其实是不破坏我们的CSS插入compute的时机的。last-child 和 only-child 是破坏了我们的时机。这两个和empty差不多，它破坏的并不严重。它只要在我们当前标签之后，再等一个token，我们就可以知道它是不是 last-child以及是不是 only-child，这种破坏回溯原则的这种特性，要么是浏览器实现不好，要么就是本身它的性能会不太好。尽量使用不破坏 CSS 回溯原则的，不要给 compute CSS添乱。  
+* 逻辑型    
+`:not伪类` 主流浏览器只支持它在里面写简单选择器的序列，也就是复合选择器。是没有办法写一些带空格的这种大于号的这种结构的、更没有办法在里面写带逗号的这种结构。只针对一个元素进行 not 判断这个对于浏览器来说实现起来是非常方便的。
+`:where :has`  
+
+注意：不建议把伪类选择器和前面的各种选择器写得非常复杂。因为在大部分情况下 HTML代码是归我们控制的。所以说我们很多时候是可以通过多加点 class 去解决的。选择器写的过于复杂，某种程度上来说HTML结构写的不合理。
+
+
+## 伪元素    
+`::before`   在元素的内容前 插入一个伪元素    
+`::after`    在元素的内容后 插入一个伪元素    
+一旦应用了before和after的属性，declaration 里面就可以写一个 content 的属性。不正常的元素是没有办法去写它的 content ，before 和 after 只要你写了 content属性，它就像一个真正的 DOM元素一样，可以去生成盒。来参与后续的排版和渲染。也可以指定 border background 这样的东西.可以理解为伪元素就是通过选择器向界面上添加了一个不存在的元素。 
+   
+而 first-line 和 first-letter机制有些不一样，这两个原本就已经存在了 content，first-line和first-letter，是选中第一行和选中第一个字母。  
+`::first-line` 选中第一行，是已经完成排版之后的一个结果。   
+`::first-letter`  选中第一个字母，它的特点并不是添加一个不存在的元素，而是它用一个不存在的元素把一部分的文本给它括了起来，让我们可以对它进行一些处理。    
+
+所以说伪元素是有两种机制：第一种是无中生有；第二种就是把它括起来，把一些有特定逻辑意义的文字给它括起来。    
+
+伪元素   
+```html
+<div>
+<::before/>
+content content content content  
+content content content content   
+content content content content
+content content content content
+content content content content
+content content content content
+<::after/>
+<div>
+```
+
+带有before伪元素的这样的选择器给它实际选中的元素，给它的内容的前面增加了一个元素，我们只需要通过它的 content 属性为它添加文本内容即可。所以before和after 这两个伪元素，我们可以任意的指定它的 display，不管是显示成 inline 还是 inline-block 还是 block 都是没有问题的。所以说相对来说比较自由，我们在实现一些组件的时候，也会常常使用这种不污染的 DOM 树，但是却能实际创造视觉效果的方式来给页面添加一些修饰性这样的内容。我们的伪元素，其实 before和after都是相对来说比较好理解的。但是在真正应用起来，可以根据 before和after这种添加元素的特性，可以有很多用法。     
+
+```html
+<div>
+<::first-letter/>c</::first-letter>
+content content content content  
+content content content content   
+content content content content
+content content content content
+content content content content
+content content content content
+<::after/>
+<div>
+```   
+::first-letter相当于我们有一个元素，把内容里面的第一个字母给它括了起来，这个 first-letter 是可以任意添加各种不同的属性。
+应用：例如报纸上那种第一个字非常大，这种情况就可以用 ::first-letter 选择器给它实现出来。用 first-letter 选择器实现，它会比用 JS去实现更加的稳定。代码也优雅一些。   
+
+::first-line 实际上是针对排版之后的 line ，其实跟我们源码里面的 first-line 没有任何的关系。所以说，假如我们的浏览器提供的渲染的宽度不同，有可能 first-line 在两个环境里面它最终控住的元素数量是不一样多的。所以我们是需要用 first-line 选择器的时候，我们需要根据需求的情况，千万不要想当然的去使用 first-line 。实际上，我们需要保持 first-line 选择器的语义正确。    
+first-line 和 first-letter 它在选择器的属性上都是有要求的。     
+
+可用属性    
+`first-line` （first-line只支持下面的属性）   
+* font系列   
+* color系列   
+* background系列   
+* word-spacing   
+* letter-spacing    
+* text-decoration    
+* text-transform    
+* line-height 
+
+`first-letter`  （first-letter 可支持下面的属性）
+* font系列   
+* color系列
+* background系列
+* word-spacing 
+* letter-spacing
+* text-decoration   
+* text-transform   
+* line-height   
+* float                 （++）
+* vertical-align        （++）
+* 盒模型系列：margin ，padding ，border  （++）   
+
+**思考题：**     
+为什么 first-letter 可以设置 display:block、float 之类的属性的，而 first-line 不行呢？   
+
+**作业：**
+编写一个match函数。接受两个参数，第一个参数是一个选择器字符串性质，第二个是一个HTML元素，这个元素可以认为它一定会在一个DOM树里面，然后我们通过选择器和 DOM 元素来判断当前的元素是能够匹配到我们的选择器。不要使用任何内置的浏览器的函数，仅仅通过DOM的parent和children这些API来判断一个元素是否能够跟一个选择器相匹配。   
+
+```javascript
+function match(selector, element){
+  return true;
+}
+
+match("div #id.class", document.getElementById("id"));
+
+
+
+
+```
 
 
 
@@ -202,8 +321,5 @@ JSON.stringify(Array.prototype.slice.call(document.querySelector("#container").c
 
 
 
-
-
-## 伪元素
 
 
