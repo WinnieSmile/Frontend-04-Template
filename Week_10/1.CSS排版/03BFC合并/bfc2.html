@@ -1,0 +1,29 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-11-10 21:36:24
+ * @LastEditTime: 2020-11-10 22:33:03
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \Frontend-04-Template\Week_10\1.CSS排版\03BFC合并\bfc2.html
+-->
+
+<!--   边距折叠  、 创建 BFC   -->
+
+<body>
+    <div style="width:100px; height:100px; background-color: aqua; margin:20px;"></div>
+    <!--   overflow: visible;   -->
+    <!-- <div style="overflow: visible; background: pink;">
+        <div style="width: 100px; height: 100px; background-color: aqua; margin: 20px;"></div>
+    </div> -->
+
+    <!--   发生边距折叠：添加另一个 margin-top 为30， 此时两个天蓝色元素之间的距离并没有变成 70px，而是三个边距折叠到了一起变成了 30px;  -->
+    <!-- <div style="margin-top:30px; overflow: hidden; background: pink;">
+        <div style=" width: 100px; height: 100px; background-color: aqua; margin: 20px;"></div>
+    </div> -->
+
+
+    <!-- 如果把上面的边距折叠改成创建 BFC的情况，即把 overflow改成 hidden， 这是最简单的创建BFC的情况，此时，里边的天蓝色的元素因为它跟外面已经不属于同一个 BFC，所以它并不再发生边距折叠，但是外边两个，粉色的元素和第一个天蓝色的元素，它们两个仍处于同一 BFC 中，所以它们两个仍然发生了边距折叠，这就是创建 BFC 与否对边距折叠行为的影响。 -->
+    <div style="margin-top:30px;  overflow: hidden; background: pink;">
+        <div style="width: 100px; height: 100px; background-color: aqua; margin: 20px;"></div>
+    </div>
+</body>

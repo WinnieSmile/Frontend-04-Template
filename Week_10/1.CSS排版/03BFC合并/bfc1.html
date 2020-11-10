@@ -1,0 +1,63 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-11-09 23:09:06
+ * @LastEditTime: 2020-11-10 21:35:53
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \Frontend-04-Template\Week_10\1.CSS排版\03BFC合并\index.html
+-->
+<body style="height: 500px; background-color: lightgreen;">
+    <div style="float:right; width:100px; height:100px; background-color: aqua; margin: 20px;"></div>
+
+    <!-- overflow: visible -->
+    <!-- <div style="background-color: pink; overflow: visible; margin: 30px;">
+        文字 文字 文字 文字 文字 文字 
+        文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字       
+        文字 文字 文字 文字 文字 文字 
+        文字 文字 文字 文字 文字 文字          
+        文字 文字 文字 文字 文字 文字          
+        文字 文字 文字 文字 文字 文字          
+        文字 文字 文字 文字 文字 文字         
+        文字 文字 文字 文字 文字 文字          
+        文字 文字 文字 文字 文字 文字 
+        文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字         
+        文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字          
+        文字 文字 文字 文字 文字 文字 
+        文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字         
+        文字 文字 文字 文字 文字 文字 
+    </div> -->
+
+<!-- 不同的BFC造成的排版逻辑的差异 -->
+
+    <!-- overflow: hidden 具备创建 BFC 的条件。
+        解释：div元素整体作为一个 block level的element 被排进了 BFC里。 
+              粉色的元素的宽度围绕着外层的float来进行排布了。
+    -->
+    <div style="background-color: pink; overflow: hidden; margin: 30px;">
+        文字 文字 文字 文字 文字 文字 
+        文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字       
+        文字 文字 文字 文字 文字 文字 
+        文字 文字 文字 文字 文字 文字          
+        文字 文字 文字 文字 文字 文字          
+        文字 文字 文字 文字 文字 文字          
+        文字 文字 文字 文字 文字 文字         
+        文字 文字 文字 文字 文字 文字          
+        文字 文字 文字 文字 文字 文字 
+        文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字         
+        文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字          
+        文字 文字 文字 文字 文字 文字 
+        文字 文字 文字 文字 文字 文字
+        文字 文字 文字 文字 文字 文字         
+        文字 文字 文字 文字 文字 文字 
+    </div>
+
+
+
+</body>
