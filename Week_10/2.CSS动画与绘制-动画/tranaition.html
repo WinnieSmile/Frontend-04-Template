@@ -1,0 +1,47 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-11-16 21:08:53
+ * @LastEditTime: 2020-11-16 21:26:13
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \Frontend-04-Template\Week_10\2.CSS动画与绘制\tranaition.html
+-->
+<style>
+    .ball{
+        width: 10px;
+        height: 10px;
+        background-color: black;
+        border-radius: 5px;
+        position: absolute;
+        left: 0;
+        right: 0;
+        transform: translateY(180px);
+    }
+</style>
+
+<script>
+    // 拟合一个抛物运动的形式（类似抛物线）
+
+    function generateCubicBezier(v, g, t){
+        var a = v / g;
+        var b = t + v / g;
+
+        return [[ (a / 3 + (a + b) / 3 -a ) / (b - a), (a * a / 3 + a * b * 2 / 3 - a * a) / (b * b - a * a)  ]],
+            [(b / 3 + (a + b) / 3 - a) / (b - a), (b * b / 3 + a * b * 2 / 3 - a * a) / (b * b - a * a) ]];
+
+    }
+
+    function createBall(){
+        var ball = document.createElement("div");
+        var t = Number(document.getElementById("t").value);
+        var vx = Number(document.getElementById("vx").value);
+        var vy = Number(document.getElementById("vy").value);
+        var g = Number(document.getElementById("g").value);
+        ball.className = "ball";
+        document.body.appendChild(ball)
+        ball.style.transition = `left linear ${t}s, top cubic-bezier(${generateCubicBezier(vy, g, t)}) ${t}s`;
+        // setTimeout(() => {
+            
+        // }, timeout);
+    }
+</script>

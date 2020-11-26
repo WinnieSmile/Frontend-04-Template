@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2020-08-23 22:33:08
- * @LastEditTime: 2020-11-11 00:10:49
+ * @LastEditTime: 2020-11-24 21:16:04
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \Frontend-04-Template\Week_10\README.md
@@ -272,15 +272,46 @@ transition-timing-function
 
 
 
-
-
 ## （二）颜色
+
+颜色，波长，400纳米 ~ 760纳米 之间的光是人眼可见范围。我们看到的光大部分都是混色的混合光。 
+印刷行业：CMYK（颜料）    
+`CMYK与RGB`   
+三原色：红黄蓝（即品红、黄、青），是红绿蓝的补色。
+眼睛里有用于感受颜色、感受强光的视锥细胞，视锥细胞有三种，这三种视锥细胞分别能感应红绿蓝三原色的光。   
+`HSL和HSV`
+HSL 和 HSV 的 H 和 S 都是已经比较固定的这样的颜色表示，Hue表示色相，它把六种颜色拼成了一种色盘，然后我们可以通过 Hue 去指定一个在色盘中的角度来指定它的颜色的色相，S表示纯度，比如颜色里边的杂色的数量，颜色的 S 越高，这个颜色它就越鲜艳越漂亮；最后一个 L 或者 V ，L表示的是亮度 Lightness，Value表示色值即 Brightness 明度。   
+HSL 和 HSV在某些时候实际上几乎是完全等价的。但是 Value 到100%的时候，它的颜色就会变成一个纯色最亮的一个纯色。L它是一个上下对称的，Linghtness 到 0 的时候它是黑色，Linghtness到 100 的时候是纯白色，所以说，如果要得到白色，是需要取它的一个中间值。
+
 
 
 
 
 
 ## （三）绘制
+* 几何图形  
+由一些 CSS属性去规定的。   
+border   
+box-shadow   
+border-radius
+* 文字   
+每个文字的字形叫 glyph，是跟矢量图差不多的东西，最后会被以类似矢量图的方式画到图片上。   
+font     
+text-decoration 
+* 位图   
+background-image    
+浏览器是如何完成绘制的？   
+手机上依赖的图形库是 Skia   
+在windows上依赖 GDI的版本   
+其他是使用 Shader 去绘制。    
+
+**应用技巧**  
+`data uri + svg`     
+data:image/svg+xml,<svg width="100%" height="100%" version="1.1" xmlns="http://www.w3.org/2000/svg"><ellipse cx="300" cy="150" rx="200" ry="80" style="fill:rgb(200,100,50); stroke:rgb(0,0,100);stroke-width:2"></svg>         
+作业：在CSS脑图上对CSS的属性进行分类
+
+
+
 
 
 

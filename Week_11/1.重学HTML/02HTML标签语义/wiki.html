@@ -1,0 +1,168 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-11-24 22:24:41
+ * @LastEditTime: 2020-11-24 23:37:03
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \Frontend-04-Template\Week_11\2.HTML标签语义\wiki.html
+-->
+
+<html>
+    <head>
+        <title></title>
+    </head>
+    <body>
+        <!-- aside 侧边 -->
+        <aside><a href="#">Not logged in</a> Talk Contributions Create account Log in Article Talk Read Edit View history</aside>
+
+        <aside>
+            Main page
+            Contents
+            <a href="#">Featured content</a>
+            Current events
+            Random article
+            Donate to Wikipedia
+            Wikipedia store
+            Interaction
+            Help
+            About Wikipedia
+            Community portal
+            Recent changes
+            Contact page
+            Tools
+            What links here
+            Related changes
+            Upload file
+            Special pages
+            Permanent link
+            Page information
+            Wikidata item
+            Cite this page
+            Print/export
+            Create a book
+            Download as PDF
+            Printable version
+            In other projects
+            Wikimedia Commons
+            Wikibooks
+
+            Languages
+            العربية
+            Español
+            हिन्दी
+            Bahasa Indonesia
+            Bahasa Melayu
+            Русский
+            اردو
+            粵語
+            中文
+            120 more
+            Edit links
+        </aside>
+
+        <!-- main 页面的主体部分，main标签在整个页面只有一个。如果不写main，直接写 article也是可以的 -->
+        <main>
+            <!-- article标签里边放文章主题内容 -->
+            <article>
+                <!-- 主标题和副标题是补充说明的关系，用hgroup标签来包裹 -->
+                <hgroup>
+                    <!-- 页面主标题用h1 -->
+                    <h1>World Wide Web</h1>
+                    <!-- 副标题用h2 -->
+                    <h2>From Wikipedia, the free encyclopedia</h2>
+                </hgroup>
+
+                <!-- p标签表示一个段落，专有名词用abbr -->
+                <p class="note">"<abbr>WWW</abbr>" and "The Web" redirect here. For other uses of WWW, see WWW (disambiguation). For other uses of web, see Web (disambiguation).
+                    For the first web software, see WorldWideWeb.
+                    Not to be confused with the Internet.</p>
+                
+                <!-- 带说明的图表用 figure标签包裹 -->
+                <figure>
+                        <img src="http://upload.wikimedia.org/wikipedia/commons/thumb/6/65/Web_Index.svg/450px-Web_Index.svg.png" alt="">
+                    <figcaption>
+                        A global map of the web index for countries in 2014
+                    </figcaption>
+                </figure>
+                
+                <!-- strong 表示的是这个词在整个文章中的重要性的这样的场景；em表示这个词在这个句子里面的重音是什么，表强调 -->
+                <p>The <strong>Wide Web</strong>, also known as the WWW and the Web, is an information space where documents and other web resources are identified by Uniform Resource Locators (URLs), interlinked by hypertext links, and accessible via the Internet.[1]</p>
+
+                <!-- 具有导航性质的内容 -->
+                <nav>
+                    Contents
+                    <ol>               
+                        <li>History</li>
+                        <li>
+                            Function
+                            <ol>
+                                <li>Linking</li>
+                                <li>Dynamic updates of web pages</li>
+                                <li>WWW prefix</li>
+                                <li>Scheme specifiers</li>
+                            </ol>
+                        </li>                   
+                        <li>Web security</li>
+                        <li>Privacy</li>
+                        <li>Standards</li>
+                        <li>Accessibility</li>
+                        <li>Internationalisation</li>
+                        <li>Statistics</li>
+                        <li>Web caching</li>
+                        <li>See also</li>
+                        <li>References</li>
+                        <li>Further reading</li>
+                        <li>External links</li>
+                    </ol>
+                </nav>
+
+                <!-- dfn表示这个词有这样的定义 -->
+                Function
+
+                The terms Internet and World Wide Web are often used without much distinction. However, the two are not the same. 
+                The <dnf>Internet</dnf> is a global system of interconnected computer networks. 
+                In contrast, the <dnf>World Wide Web</dnf> is a global collection of documents and other resources, linked by hyperlinks and URIs. 
+                Web resources are accessed using HTTP or HTTPS, which are application-level Internet protocols that use the Internet's transport protocols.[34]
+
+                Viewing a web page on the World Wide Web normally begins either by typing the URL of the page into a web browser, or by following a hyperlink to that page or resource. 
+                
+
+<!-- 使用pre标签表示这是一段预先调整好格式的这样的一段文本，这样就不会被当做普通文本去处理 -->
+<!-- samp标签 表示例子，示例 -->
+<samp>               
+    <pre>
+        GET /home.html HTTP/1.1
+        Host: www.example.org
+    </pre>
+</samp>
+
+
+<!-- 一段html的文本代码。为了使HTML代码不变成HTML标签，需要加上转义 &lt; -->
+<code>
+<pre>
+    &lt;html>
+        &lt;head>
+            &lt;title>www.Example.org – The World Wide Web&lt;/title>
+        &lt;/head>
+        &lt;body>
+            &lt;p>The World Wide Web, abbreviated as WWW and commonly known ...&lt;/p>
+        &lt;/body>
+    &lt;/html>
+</pre>
+</code>
+                
+            </article>
+        </main>
+
+        <!-- 不是主要内容，显示在main主要内容之外，使用footer -->
+        <footer>
+            This page was last edited on 15 January 2019, at 06:00 (UTC).
+            Text is available under the Creative Commons Attribution-ShareAlike License; additional terms may apply. By using this site, you agree to the Terms of Use and Privacy Policy. Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a non-profit organization.
+            Privacy policyAbout WikipediaDisclaimersContact WikipediaDevelopersCookie statementMobile view
+        </footer>
+
+
+    </body>
+</html>
+
+
