@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2020-08-23 22:33:08
- * @LastEditTime: 2020-12-08 21:57:29
+ * @LastEditTime: 2020-12-08 22:11:21
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \Frontend-04-Template\Week_11\README.md
@@ -775,5 +775,6 @@ names = filterOut(names, ["SyncManager"]);
 
 
 console.log(names.length);
+
 
 ```
