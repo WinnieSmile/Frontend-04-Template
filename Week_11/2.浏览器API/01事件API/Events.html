@@ -1,0 +1,49 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-12-06 15:18:41
+ * @LastEditTime: 2020-12-06 15:47:27
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \Frontend-04-Template\Week_11\2.浏览器API\01事件API\Events.html
+-->
+
+<!-- 互相嵌套的元素 a b； b元素在a元素的里层 -->
+
+<div id="a" style="width: 100%; height: 300px; background:lightblue;">
+    <div id="b" style="width: 100%; height: 200px; background: pink;">
+    </div>
+</div>
+
+<script>
+    // 将 a 和 b 元素的变量取出来，存成 a 和 b两个变量
+    var a = document.getElementById("a");
+    var b = document.getElementById("b");
+    
+    // 第一步：给 a 和 b 添加事件监听 （没有加第三个参数，这里默认是冒泡的事件。）
+    a.addEventListener("click", function(){
+        console.log("a")
+    })
+    b.addEventListener("click", function(){
+        console.log("b")
+    })
+    // 执行结果： b a   //因为b在里层，所以说b会优先触发
+
+    // 第二步：给 a 和 b 添加捕获事件
+    b.addEventListener("click", function(){
+        console.log("b1")
+    }, true)
+    a.addEventListener("click", function(){
+        console.log("a1")
+    }, true)
+    // 执行结果： a1 b b1 a
+    // 触发顺序是：先触发了 a 的捕获事件，然后在 b 上的两个事件依次触发，最后事件又回到冒泡的 a 上。
+
+    // 第三步：给 b 上添加一个不论是冒泡还是捕获事件
+    b.addEventListener("click", function(){
+        console.log("b3")
+    })
+    // 执行结果：a1 b b1 b3 a
+    // 后加的会加到后面去，先加的会先触发，这就是整个的元素的冒泡和捕获的这样的一个关系
+
+
+</script>

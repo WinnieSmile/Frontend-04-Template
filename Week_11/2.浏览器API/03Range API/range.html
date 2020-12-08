@@ -1,0 +1,19 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-12-06 20:32:01
+ * @LastEditTime: 2020-12-06 22:21:08
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \Frontend-04-Template\Week_11\2.浏览器API\03Range API\range.html
+-->
+<div id="a">123<span style="background-color: pink;">456789</span>0123456789</div>
+<script>
+    let range = new Range();
+    // range.setStart(document.getElementById("a").childNodes[0], 3);              //1233456789
+    // range.setStart(document.getElementById("a").childNodes[1], 0);              //1233456789
+    range.setStart(document.getElementById("a").childNodes[1].childNodes[0], 3);   //1234563456789
+    range.setEnd(document.getElementById("a").childNodes[2], 3);        
+
+    // range.extractContents()  //执行：3后面到3前边的所有内容都被移除掉了
+    
+</script>

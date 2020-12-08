@@ -1,0 +1,27 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-12-06 19:25:39
+ * @LastEditTime: 2020-12-06 22:46:56
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \Frontend-04-Template\Week_11\2.浏览器API\03Range API\reverse1.html
+-->
+<!-- 正常的解法 -->
+<div id="a">
+    <span>1</span>
+    <p>2</p>
+    <p>3</p>
+    <div>4</div>
+</div>
+<script>
+    let element = document.getElementById("a");
+
+    function reverseChildren(element){
+        var l = element.childNodes.length;
+        while(l-- > 0){
+            element.appendChild(element.childNodes[l])
+        }
+    }
+
+    reverseChildren(element);
+</script>

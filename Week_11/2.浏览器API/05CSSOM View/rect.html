@@ -1,0 +1,23 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-12-08 00:00:49
+ * @LastEditTime: 2020-12-08 00:03:39
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \Frontend-04-Template\Week_11\2.浏览器API\05CSSOM View\rect.html
+-->
+
+<style>
+    .x::before{
+        content: "额外 额外 额外 额外 额外";
+        background-color: pink;
+    }
+</style>
+
+<div style="width: 100px; height: 400px; overflow: scroll;">
+    文字 <span class="x" style="background-color: lightblue;">文字 文字 文字 文字 文字 文字 文字</span>
+</div>
+
+<script>
+    var x = document.getElementsByClassName("x")[0];
+</script>
