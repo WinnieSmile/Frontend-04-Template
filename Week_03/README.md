@@ -1,12 +1,13 @@
 <!--
  * @Author: your name
  * @Date: 2020-08-23 22:33:08
- * @LastEditTime: 2020-09-20 23:54:21
- * @LastEditors: your name
+ * @LastEditTime: 2020-12-15 22:31:47
+ * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \Frontend-04-Template\Week_03\README.md
 -->
 # 一、字符串分析算法
+
 * 字典树
     * 大量高重复字符串的存储与分析
 
