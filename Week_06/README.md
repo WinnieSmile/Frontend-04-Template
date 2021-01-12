@@ -1,11 +1,12 @@
 <!--
  * @Author: your name
  * @Date: 2020-08-23 22:33:08
- * @LastEditTime: 2020-10-19 22:47:55
+ * @LastEditTime: 2021-01-12 23:04:52
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \Frontend-04-Template\Week_06\README.md
--->
+-->   
+优秀总结及笔记：https://github.com/mxin-d/Frontend-04-Template/tree/master/Week_06    
 # 浏览器工作原理
 ## 浏览器工作原理总论    
 玩具浏览器：Toy-Browser   
@@ -19,7 +20,17 @@ Toy-Browser
 `URL` → HTTP → `HTML` → parse → `DOM` → css computing → `DOM with CSS` → layout → `DOM with position` → render → `Bitmap`    
 URL部分，首先是会经过一个HTTP请求和解析HTTP回应的这样的一个过程，把URL里面包含的HTML给取出来，然后对文本的HTML进行 parse，这个就是一个一般的文本分析或者说是编译的一个初级的技术，把HTML变成我们所熟悉的Dom树，有了Dom树以后，它是一棵光秃秃的Dom树，上面除了HTML本身包含的信息什么都没有，所以下一个步骤就需要进行 CSS computing，对这个Dom树上对应着哪些 CSS 规则，哪些 CSS规则会发生叠加，会发生覆盖，把最终的结果给它计算出来，这就是  Css computing ，计算完了之后，就会得到一棵带 CSS 属性的 Dom树（带样式的 Dom）,CSS全称叫做 级联样式表，级联样式表是不可能待在 Dom树上的。有了CSS属性，就可以进行 layout（布局、排版），最终把这棵 Dom树上面的所有元素产生的盒的位置计算出来（获得位置不是Dom本身，而是CSS最后生成的核）。有了Dom position 之后，就可以进行渲染render。通过render就可以把Dom树该有背景图的有背景图，该有背景色的有背景色，最后把它画到一张图片上。然后就可以通过操作系统和硬件驱动提供的 API 接口，最终展示出来。     
 
-## （一）状态机   
+## （一）状态机        
+> 网上找了好多文章，都是摘录阮一峰大佬的这篇 js 与有限状态机 http://www.ruanyifeng.com/blog/2013/09/finite-state_machine_for_javascript.html     
+
+> KMP+动归+有限状态机 https://zhuanlan.zhihu.com/p/83334559     
+
+三个特征：
+* 状态总数（state）是有限的。
+* 任一时刻，只处在一种状态之中。
+* 某种条件下，会从一种状态转变（transition）到另一种状态。    
+<br>
+
 有限状态机处理字符串     
 （处理字符串是整个 browser 里面贯穿始终的这样的技巧。）   
 * 每一个状态都是一个机器 
@@ -278,7 +289,7 @@ start函数：
     https://en.wikipedia.org/wiki/Knuth%E2%80%93Morris%E2%80%93Pratt_algorithm
 
 ## （二）HTTP请求  
-### HTTP的协议解析    
+**一、HTTP的协议解析**     
 **ISO-OSI七层网络模型**  
 应用层  
 表示层  
@@ -306,7 +317,7 @@ IP包一定是以IP地址来寻找自己要传输到哪里的。对应IP协议�
 * Response   
 HTTP是由Request和Response这样的过程组成的，相当于TCP这种全双工通道。（全双工就是你可以给我发，我也可以给你发，不存在什么优先关系）HTTP必须先由客户端发起一个 request，然后服务端回来一个 response，所以每一个request它一定对应着一个response，如果这个response多了，或者request多了，都说明这个协议出错，它在TCP的基础上看似做了更严格更死的规定，但是其实在实践过程中发现这种模式还挺好，所以HTTP到今天已经变成了互联网上最流行的一个协议。  
 
-**服务端环境搭建**
+**二、服务端环境搭建**
 ```javascript
     const http = require('http');
 
@@ -317,7 +328,7 @@ HTTP是由Request和Response这样的过程组成的，相当于TCP这种全双�
         }).on('data', (chunk)=>{
             body.push(chunk.toString());
         }).on('end', ()=>{
-            body = Buffer.concat(body).toString();
+            // body = Buffer.concat(body).toString();
             console.log('body：', body);
             response.writeHead(200, { 'Content-Type': 'text/html' });
             response.end(' Hello World\n ');
@@ -329,8 +340,73 @@ HTTP是由Request和Response这样的过程组成的，相当于TCP这种全双�
 ```
 
 通过require一个http的包，然后调用 http 的createServer，然后按照它的格式在这个里面，我们去接收它的 request 里面的内容，然后request需要接受一个 on error、on data、on end ，三个不同的这样的事件。
-on error打印出来， on data 把这个数据暂存到一个body的数组中，然后把body去做一次concat，然后把这个数组里的内容拼起来，然后我们这地方加了一个console log 方便去解析。由于我们并不需要去根据request去处理什么东西，所以我们这里写死一个response的值，我们写一个head、写一个end就可以了。我们至少需要写一个 'Content-Type': 'text/html'，body部分随便写一份HTML代码（此处写的是 Hello World ）
-**HTTP协议**
+on error打印出来， on data 把这个数据暂存到一个body的数组中，然后把body去做一次concat，然后把这个数组里的内容拼起来，然后我们这地方加了一个console log 方便去解析。由于我们并不需要去根据request去处理什么东西，所以我们这里写死一个response的值，我们写一个head、写一个end就可以了。我们至少需要写一个 'Content-Type': 'text/html'，body部分随便写一份HTML代码（此处写的是 Hello World ）  
+**三、实现一个HTTP的请求**    
+**（1）步骤一：**
+```javascript
+const net = require("net");
+
+class Request {
+    // 把options里传进来的数据稍做处理，并且补全了 Content-Type 、 Content-Length
+    constructor(options){
+        this.method = options.method || "GET";  //比如说 method 默认值是GET，
+        this.host = options.host;         //host没有办法给默认值，
+        this.port = options.port || 80;   //port默认是80，因为HTTP协议的默认端口是80，
+        this.path = options.path || "/";  //path的话默认斜杠，
+        this.body = options.body || {};   //body默认就是个空对象。
+        this.headers = options.headers || {};   //headers创建的是一个新对象。
+        if(!this.headers["Content-Type"]){
+            this.headers["Content-Type"] = "application/x-www-form-urlencoded";
+        }
+
+        // body需要解析，这里是2种最简单的编码格式，其实大概有4种比较常用的编码格式.
+        if(this.headers["Content-Type"] === "application/json"){
+            this.bodyText = JSON.stringify(this.body);
+        }else if(this.headers["Content-Type"] === "application/x-www-form-urlencoded"){
+            // 使用 & 分隔，等号左边是key右边是value。等号的右边的值是需要经过 encodeURIComponent 的操作
+            // 简单的HTTP的保存
+            this.bodyText = Object.keys(this.body).map(key => `${key}=${encodeURIComponent(this.body[key])}`).join('&');
+        }
+
+        // headers是必要的，这个headers不建议设计成从外边传的，它一定是从body的text里面取一个length出来。如果headers传的不对的话会是HTTP的一个非法请求。
+        this.headers["Content-Length"] = this.bodyText.length;
+    }
+    
+    // send 方法中会去 return 一个 new Promise，我们要存的是 method，需要给它一个默认值。
+    send(){
+        return new Promise((resolve, reject) => {
+            // ……
+        });
+    }
+}
+
+void async function(){
+    let request = new Request({   //创建一个http请求的时候，会传一个config object进去，
+        method: "POST",           //method，HTTP协议要求
+        host: "127.0.0.1",        //host属性，来自IP层
+        port: "8088",             //port属性，来自TCP层
+        path: "/",                //path路径，HTTP协议要求
+        headers: {
+            ["X-Foo2"]: "customed"
+        },
+        body: {
+            name: "winter"
+        }
+    });
+    
+    let response = await request.send();  //然后当请求结束时请求会调用一个send方法，send方法会返回一个 promise，promise成功之后它就会得到一个response对象。
+
+    console.log('响应',response);
+
+}();
+```
+**总结：**   第一步 HTTP请求 
+* 设计一个HTTP请求的类   
+* content type 是一个必要的字段，要有默认值   
+* HTTP请求的body是一种 kv 的格式  
+* 不同的 Content-Type 影响body的格式；还会有 Content-Length
+
+**补充：HTTP协议**
 ```javascript
     POST/HTTP/1.1                                   //Request line
     Host:127.0.0.1                                  //headers
@@ -341,8 +417,340 @@ on error打印出来， on data 把这个数据暂存到一个body的数组中�
 
 HTTP协议是一个叫做文本型的协议，文本型协议一般来说我们是跟二进制型的协议相对的，文本型协议就意味着说这个协议里面
 所有的内容都是字符串，它的每一个字节都会被理解成字符串的一部分，比如说要传个1，不是说把这个bite给它传过去，也不会把1放到一个字节里面去传过去，而是会用一个字符1，也就是 Unicode或者 ASCII 编码里面的值，而 HTTP 协议正是这样一种文本型的协议。所以因为 HTTP 协议是在TCP协议的上层，所以说流淌在TCP协议的流里面的所有的内容都可以视为字符。  
-HTTP协议的request 第一行叫做 request line， request line又包含三个部分，第一个部分叫做 method，method 最常见的是 POST和 GET，HTTP还规定了其他的method，比如说 options等。   
+
+HTTP协议的request 第一行叫做 request line， request line又包含三个部分，第一个部分叫做 method，method 最常见的是 POST和 GET，HTTP还规定了其他的method，比如说 options等。  
+
 它第二项就是一个路径是 path ，path默认它就是一个斜杠，在访问浏览器的时候也可以看到在域名后面的斜杠后面的内容是路径。这个是作为HTTP协议的一个内容被放上去的，最后是一个 HTTP和HTTP版本，此处用的是老的版本1.1。实际上HTTP协议已经有2.0 3.0这些新版本了。  
 后边的部分是headers，它包含多行的，它会每一行是以一个冒号分隔的 key 和 value 这样的一个键值对的结构。headers行数不固定，headers的结束是一个空行为标志进行结束的。  
-后边的是body部分，body部分是由 Content-Type 来决定的。Content-Type规定了什么格式，那么body就用什么格式来写，总体上可以认为body也是一个kv的结构，但是视 Content-Type 不同，它里面的不同的会用不同的分隔的字符和不同的格式。然后所有HTTP里面的换行按照规定都是 \r \n ，它是两个字符组成的一个换行符。这也是一个比较容易去解析错的地方
+
+后边的是body部分，body部分是由 Content-Type 来决定的。Content-Type规定了什么格式，那么body就用什么格式来写，总体上可以认为body也是一个kv的结构，但是视 Content-Type 不同，它里面的不同的会用不同的分隔的字符和不同的格式。然后所有HTTP里面的换行按照规定都是 \r \n ，它是两个字符组成的一个换行符。这也是一个比较容易去解析错的地方。
+
+**（2）步骤二：send 函数的编写，了解 response 格式**    
+接收到信息，我们开始进入到第二步，send函数的编写，因为它是一个 Promise的形式，所以在send的过程中，会逐步的收到response，直到最后把response构造好之后，再去让Promise得到resolve，因为这个过程它是会逐步的收到信息的，所以有必要去设计一个response parser，而不是直接设计一个response类，这样，parser可以通过逐步地去接收response信息，然后来构造response的对象的各个不同部分。
+```javascript
+const net = require("net");
+
+// Request的类 
+class Request {
+    
+    constructor(options){
+        this.method = options.method || "GET";  
+        this.host = options.host;         
+        this.port = options.port || 80;   
+        this.path = options.path || "/";  
+        this.body = options.body || {};   
+        this.headers = options.headers || {};   
+        if(!this.headers["Content-Type"]){
+            this.headers["Content-Type"] = "application/x-www-form-urlencoded";
+        }
+
+        if(this.headers["Content-Type"] === "application/json"){
+            this.bodyText = JSON.stringify(this.body);
+        }else if(this.headers["Content-Type"] === "application/x-www-form-urlencoded"){
+            
+            this.bodyText = Object.keys(this.body).map(key => `${key}=${encodeURIComponent(this.body[key])}`).join('&');
+        }
+
+        this.headers["Content-Length"] = this.bodyText.length;
+    }
+    
+    // 编写send函数
+    send(){
+        return new Promise((resolve, reject) => {
+            const parser = new ResponseParser;  //重点：创建 ResponseParser 这样的类
+            resolve("");
+        });
+    }
+   
+}
+
+// ResponseParser 是逐步地去接收response的文本，并且进行分析。
+class ResponseParser{
+    constructor(){
+
+    }
+    // 设计receive这样的接口，会接收一个字符串。像状态机那样对字符串逐个地进行处理。
+    receive(string){
+        for(let i = 0; i<string.length; i++){
+            this.receiveChar(string.charAt(i));
+        }
+    }
+    // receiveChar里边是状态机的代码
+    receiveChar(char){
+
+    }
+}
+
+void async function(){
+    let request = new Request({   
+        method: "POST",           
+        host: "127.0.0.1",       
+        port: "8088",             
+        path: "/",                
+        headers: {
+            ["X-Foo2"]: "customed"
+        },
+        body: {
+            name: "winter"
+        }
+    });
+    
+    let response = await request.send();  
+
+    console.log('响应',response);
+
+}();
+```
+总结：第二步 send函数总结   
+* 在Request的构造器中收集必要的信息  
+* 设计一个send函数，把请求真实发送到服务器   
+* send函数应该是异步的，所以返回 Promise 
+
+**补充：了解response格式**    
+response格式如下
+<table border>
+    <tr>
+        <th>response格式结构</th>
+        <th>表示含义</th>
+    </tr>
+    <tr>
+        <td>HTTP/1.1 200 OK</td>
+        <td>表示 status line 部分</td>
+    </tr>
+    <tr>
+        <td>
+            Content-Type:text/html<br> 
+             Date:Mon, 23 Dec 2019 06:46:19 GMT<br>
+            Connection:keep-alive<br>
+            Transfer-Encoding:chunked<br>
+        </td>
+        <td>表示 headers 部分</td>
+    </tr>
+    <tr>
+        <td></td>  
+        <td>表示 空行分隔</td>     
+    </tr>
+    <tr>
+        <td>
+            26<br>
+            &lthtml>&ltbody>Hello World&lt/body>&lt/html><br>
+            0
+        </td> 
+        <td>表示 body 部分</td>      
+    </tr>
+</table>
+解释：   
+
+**HTTP/1.1 200 OK**：返回status line，包含三个部分，与request line正好相反。开头是HTTP的版本号，第二部分是一个数字（HTTP的状态码），第三部分是HTTP的状态文本。第一部分相当于一个固定的字符串，没有什么用处，但是HTTP状态码是一个非常重要的知识点。   
+500 服务器内部错误；404 找不到网页；301 302 304 200     
+**header部分**：HTML的Request和Response都是包含 header 的，它的格式与request是完全一样的。    
+**空行分隔**   
+**body部分**：由content type决定，有一种比较典型的格式是 chunked body，chunked body 先由一个十六进制的数字单独占一行，后面跟着内容部分，再后面又有一个十六进制的数字，直到最后一个十六进制的0跟十进制的0是同一个0，那么它最后会得到空的 chunk，这个0之后就是整个的body的结尾。因为body里面是允许任何字符的，所以说它会用这种方式来切分body的内容，任何的特殊字符都不能够分隔response的body。      
+   
+**（3）步骤三：发送请求**        
+目标是补全send里面的代码。      
+主要代码
+```javascript
+// 发送请求
+send(connection){
+    return new Promise((resolve, reject) => {
+        const parser = new ResponseParser;  
+        if(connection){
+            connection.write(this.toString());
+        }else{
+            connection = net.createConnection({
+                host: this.host,
+                port: this.port
+            }, () => {
+                connection.write(this.toString());
+            })
+        }
+        connection.on('data', (data) => {
+            console.log(data.toString());
+            parser.receive(data.toString());
+            if(parser.isFinished){
+                resolve(parser.response);
+                connection.end();
+            }
+        });
+        connection.on('error', (err) => {
+            reject(err);
+            connection.end();
+        })
+        // resolve("");
+    });
+}
+
+toString() {
+        return `${this.method} ${this.path} HTTP/1.1\r
+${Object.keys(this.headers).map(key => `${key}: ${this.headers[key]}`).join('\r\n')}\r
+\r
+${this.bodyText}`
+    }
+```
+总结：第三步 发送请求   
+* 设计支持已有的 connection 或者自己新建 connection   
+* 收到数据传给 parser   
+* 根据 parser 的状态 resolve Promise
+
+**（4）步骤四：response 解析：设计状态机**     
+主要代码
+```javascript
+/**
+ * 状态机有很多不同种写法：此处采用常量，用if做区分的方法。从性能的角度和从代码的管理的角度，不如前面用的函数的方法。
+ * statusLine 会以 \r\n 结束，\r\n会是两个状态，WAITING_STATUS_LINE的状态，当它接收到一个\r的时候，并不会切到WAITING_HEADER的状态，它会再等一个line end的符号，所以它会产生两个状态。
+ * header 会有一个header name 的输入状态，header name的冒号后面等待空格的状态，和一个header value的状态以及同样道理的header line end的状态，所以说每一个header会有四个状态，
+ * 最后会有 block end的状态。因为header之后我们要再等一个空行。
+ * 再往后就是body的状态，因为body的状态不固定，所以我们没办法在同一个 response parser里面把这个代码解决掉
+ */
+
+// 设计状态机
+class ResponseParser{
+    constructor(){
+        this.WAITING_STATUS_LINE = 0;   
+        this.WAITING_STATUS_LINE_END = 1;
+        this.WAITING_STATUS_NAME = 2;
+        this.WAITING_HEADER_SPACE = 3;
+        this.WAITING_HEADER_VALUE = 4;
+        this.WAITING_HEADER_LINE_END = 5;
+        this.WAITING_HEADER_BLOCK_END = 6;
+        this.WAITING_BODY = 7;
+
+        // 存储解析过程中产生的结果
+        this.current = this.WAITING_STATUS_LINE;  //一开始会把它置为初始状态
+        this.statusLine = "";
+        this.headers = {};
+        this.headerName = "";
+        this.headerValue = "";
+        this.bodyParser = null;
+    }
+
+    /**
+     * receive的过程会把一个一个字符传给receiveChar
+     */
+    receive(string){
+        for(let i = 0; i<string.length; i++){
+            this.receiveChar(string.charAt(i));
+        }
+    }
+    receiveChar(char){
+        if(this.current === this.WAITING_STATUS_LINE){
+            if(char === '\r'){
+                this.current = this.WAITING_STATUS_LINE_END;
+            } else {
+                this.statusLine += char;
+            }
+        } else if(this.current === this.WAITING_STATUS_LINE_END){
+            if(char === '\n'){
+                this.current = this.WAITING_HEADER_NAME;
+            }
+        } else if(this.current === this.WAITING_HEADER_NAME){
+            if(char === ':'){
+                this.current = this.WAITING_HEADER_SPACE;
+            } else if(char === '\r'){  //说明这一行是个空行
+                this.current = this.WAITING_HEADER_BLOCK_END;  //进入到header_block状态
+            } else{
+                this.headerName += char;
+            }               
+        } else if(this.current === this.WAITING_HEADER_SPACE){ //header_space是个临时状态，因为冒号后边必须由空格来分割header的kv（key:value）  
+            if(char === ' '){
+                this.current = this.WAITING_HEADER_VALUE;
+            }
+        } else if(this.current === this.WAITING_HEADER_VALUE){  //如果等到了空格就会进入到 header value
+            if(char === '\r'){  // 死等\r
+                this.current = this.WAITING_HEADER_LINE_END;
+                this.headers[this.headerName] = this.headerValue; //如果value确定，等到\r的话，我们会把暂存的headerName和headerValue写到headers上面，上面是一个kv的写法。
+                this.headerName = "";
+                this.headerValue = "";
+            }else {
+                this.headerValue += char;
+            }
+        } else if(this.current === this.WAITING_HEADER_LINE_END){  //header_line_end 死等一个回车
+            if(char === '\n'){
+                this.current = this.WAITING_HEADER_NAME; 
+            }
+        }else if(this.current === this.WAITING_HEADER_BLOCK_END){  //header_block也是死等回车
+            if(char === '\n'){
+                this.current = this.WAITING_BODY;
+            }
+        }else if(this.current === this.WAITING_BODY){
+            console.log('char',char)  //waiting_body下边的代码还没有写完
+        }
+    }
+}
+```
+总结：第四步 ResponseParser 总结 
+* ResponseParser 必须分段构造，所以我们需要用一个ResponseParser来 “装配”
+* ResponseParser 分段处理 ResponseText，我们用状态机来分析文本的结构   
+
+**（5）步骤五：如何去处理ResponseParser的body**     
+主要代码：
+```javascript
+/**
+ * trunkedBody的结构是：一个长度后面跟着一个Trunk的内容，这个称为一个trunked。
+ * 遇到一个长度为0的trunk，那么整个body就结束了，所以会规定一个waiting_length和一个waiting_length_line_end两个状态，然后来处理长度这样的号。
+ */
+class TrunkedBodyParser {
+    constructor(){
+        this.WAITING_LENGTH = 0;
+        this.WAITING_LENGTH_LINE_END = 1;
+        this.READING_TRUNK = 2;  //reading_trunk的状态，要想退出reading_trunk的状态，我们是必须要去等待这个长度，必须要去计算Trunk里面的长度的，所以严格来说，这个东西已经不是一个严格的米粒状态机了。但是这样仍然是一个可以跑起来的这样的状态机。
+        this.WAITING_NEW_LINE = 3;
+        this.WAITING_NEW_LINE_END = 4;
+        this.length = 0;
+        this.content = [];
+        this.isFinished = false;
+        this.current = this.WAITING_LENGTH;
+    }
+    receiveChar(char){
+        if(this.current === this.WAITING_LENGTH){
+            /**
+             * 找到/r的时候，说明已经读到一个length，这个时候如果length等于0，说明我们遇到一个长度为0的Trunk；
+             * 此时会给 this.isFinished 的状态置为true，来告诉上级的parser，说明此时已经结束了；
+             * 否则我们就会给它切换到 waiting_length_line_end 的状态。
+             * 
+             * 如果说在读length的过程中，因为length是个十六进制，所以要给原来的值乘以16，最后一位空出来，然后再把最后读进来的一位给它加上去。
+             * 用 parseInt(char,16) 就可以了。
+             */
+            if(char === '\r'){  
+                if(this.length === 0){
+                    this.isFinished = true;
+                }
+                this.current = this.WAITING_LENGTH_LINE_END;              
+            }else {
+                this.length *= 16;
+                this.length += parseInt(char, 16);
+            }
+        }else if(this.current === this.WAITING_LENGTH_LINE_END){
+            // console.log("WAITING_LENGTH_LINE_END");           
+            if(char === '\n'){
+                this.current = this.READING_TRUNK;
+            }
+        }else if(this.current === this.READING_TRUNK){
+            this.content.push(char);  //Trunk里边的字符存起来，
+            this.length --;  //然后我们就会给length减掉；
+            if(this.length === 0){
+                //如果length变成0的话，就会直接给它一个切换。
+                this.current = this.WAITING_NEW_LINE;
+            }
+        }else if(this.current === this.WAITING_NEW_LINE){
+            if(char === '\r'){
+                this.current = this.WAITING_NEW_LINE_END;
+            }
+        }else if(this.current === this.WAITING_NEW_LINE_END){
+            if(char === '\n'){
+                this.current = this.WAITING_LENGTH;
+            }
+        }
+    }
+}
+```
+总结：第五步 BodyParser 总结 
+* Response 的body可能根据 Content-Type有不同的结构，因此我们会采用子Parser的结构来解决问题。
+* 以TrunkedBodyParser为例，我们同样用状态机来处理body的格式。
+
+
+
+
+
 
