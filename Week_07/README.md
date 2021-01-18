@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2020-08-23 22:33:08
- * @LastEditTime: 2021-01-17 22:34:41
+ * @LastEditTime: 2021-01-18 22:08:09
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \Frontend-04-Template\Week_07\README.md
@@ -77,4 +77,7 @@ module.exports.parserHTML = function parseHTML(html){
     
 
 ## 第四步骤
-状态机最大的作用是在每一个状态里可以做一些计算，如何通过状态机里面的每一个状态在里面适当的位置插入我们自己的计算逻辑，然后来求出我们想要的token。
+状态机最大的作用是在每一个状态里可以做一些计算，如何通过状态机里面的每一个状态在里面适当的位置插入我们自己的计算逻辑，然后来求出我们想要的token。     
+总结：    
+* 在状态机中，除了状态迁移，我们还会要加入业务逻辑（在parser的代码里边，业务逻辑就是创建token，然后把字符加到token上，最后emit token）
+* 在标签的结束状态就会提交标签token，注意：不是在结束标签才提交整个的token，开始标签和结束标签在词法的角度来讲是两个不同的token，中间是一堆文本节点，还没有构建树结构。
