@@ -295,4 +295,5 @@ module.exports.parseHTML = function parseHTML(html){
         state = state(c); 
     }
     state = state(EOF);   
+    console.log('EOF',stack[0]);
 }

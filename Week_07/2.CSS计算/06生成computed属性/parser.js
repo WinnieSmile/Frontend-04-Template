@@ -1,22 +1,97 @@
+const css = require('css');     //使用 npm install css   【安装css包】
+
+const EOF = Symbol("EOF");
+
 let currentToken = null;
 let currentAttribute = null;
 
 let stack = [{ type:"document", children:[] }];   
+let currentTextNode = null;   
+
+
+let rules = [];
+function addCSSRules(text){
+    var ast = css.parse(text);
+    rules.push(...ast.stylesheet.rules);
+}
+
+/**
+ * 简单选择器：   
+ *      id选择器：      #a   
+ *      class选择器：   .a   
+ *      tagName选择器： div
+ */
+function match(element, selector){    
+    if(!selector || !element.attributes){
+        return false;
+    }
+    if(selector.charAt(0) === "#"){
+        var attr = element.attributes.filter(attr => attr.name === "id")[0]
+        if(attr && attr.value === selector.replace("#", '')){
+            return true;
+        }
+    }else if(selector.charAt(0) === "."){
+        var attr = element.attributes.filter(attr => attr.name === "class")[0]
+        if(attr && attr.value === selector.replace(".", '')){
+            return true;
+        }
+    }else {
+        if(element.tagName === selector){
+            return true;
+        }        
+    }
+    return false;
+}
+
+function computeCSS(element){
+    // console.log('rules',rules);
+    // console.log('compute CSS for Element', element);   
+    var elements = stack.slice().reverse();  
+    console.log('elements',elements)
+    if(!element.computedStyle){
+        element.computedStyle = {};   
+    } 
+    for(let rule of rules){       
+        var selectorParts = rule.selectors[0].split(" ").reverse();      
+        
+        // ？？？？？？这一步有问题，img没有attributes，匹配一直无法匹配到
+        if(!match(element, selectorParts[0]))  
+            continue;       
+        let matched = false;
+
+        var j = 1;        
+        for(var i = 0; i < elements.length; i++){  
+            if(match(elements[i], selectorParts[j])){   
+                j++;
+            }
+        }       
+        if(j >= selectorParts.length){  
+            matched = true;
+        }
+
+        // ？？？？？匹配到之后的操作
+        if(matched){  
+            var computedStyle = element.computedStyle;  //把创建好的computedStyle取出来
+            // 把ast的rule.declarations里的每一条取出来
+            for(var declaration of rule.declarations){
+                // 循环访问declarations里边的属性。如果computedStyle没有这个属性的话，就给它创建一个对象，用对象来保存属性的值。
+                // 不把property的value直接写上去，主要是为了方便存储一些value之外的值。
+                if(!computedStyle[declaration.property]){
+                    computedStyle[declaration.property] = {}
+                }
+                // 把declaration里的value存到computedStyle的属性的value上去
+                computedStyle[declaration.property].value = declaration.value
+            }
+            console.log('生成computed属性',element.computedStyle);
+        }
+    }
+}
+
 
 function emit(token){
-    // if(token.type!="text")
-    // console.log(token);
-    if(token.type === "text"){  //如果是文本节点，就忽略掉
-        return;
-    }
-    let top = stack[stack.length - 1];   // 每次emit token之后先把栈顶取出来，用一个数组来表示stack，那么它的栈顶就是最后一个元素
+    let top = stack[stack.length - 1];   
+    // console.log(token.type,token.content)
 
-    /**
-     *  如果是startToken，那么我们就会对它进行一个入栈操作，不会把这个token直接入栈，我们会入栈一个element。
-     *  tag和element的区别：写在HTML文本里面的带尖括号的是tag，它背后所表示的东西，那个抽象的概念就是element。所以我们DOM树里面它只会有note和element，它不会有tag。不论是startTag还是endTag，它最终都对应着同一个element。
-     *  把token里面的element直接赋值给element，让它变成element的tagName；然后把所有的属性除了type和tagName之外的属性都给它push进element的一个属性的池子里面
-     *  attributes:[]    放了一个空的数组
-     */
     if(token.type == "startTag"){   
         let element = {
             type:"element",  
@@ -34,28 +109,42 @@ function emit(token){
                 });
             }
         }
+        // console.log('element', element)
 
-        top.children.push(element);    //入栈之前把它的top的children里面加上这个element元素，然后我们把元素parent设成top。这是对偶的操作
+        computeCSS(element);    
+
+        top.children.push(element);    
         element.parent = top;
 
-        if(!token.isSelfClosing){   //如果是自封闭的就没有必要去push stack，如果它不是自封闭的，它是个startTag的话，我们就给它push进去。
+        if(!token.isSelfClosing){   
             stack.push(element);
         }
         currentTextNode = null;
 
-    }else if(token.type == "endTag"){
-        //检查一下tagName是否相等
-        if(top.tagName != token.tagName){  //如果不相等，理论上讲HTML是有一定的容错性的，比如说外面是一个p标签，里面是一个span标签，它默认就会把span标签先给封闭掉，然后再把p标签放进去。 
-            throw new Error("Tag start end doesn't match");
-        }else {
-            //如果是相等的，那么就说明它配对是成功的，直接stack.pop();就好了
+    }else if(token.type == "endTag"){  
+        if(top.tagName != token.tagName){   
+            throw new Error("Tag start end doesn't match!");
+        }else {  
+            // +++++++++++++++++++   遇到 style 标签时，执行添加CSS规则的操作  +++++++++++++++  //
+            if(top.tagName === "style"){
+                addCSSRules(top.children[0].content);  
+            }  
             stack.pop();
         }
         currentTextNode = null;
+    }else if(token.type == "text"){
+        // 节点类型为文本的处理逻辑
+        if(currentTextNode == null){
+            currentTextNode = {  
+                type:"text",
+                content:""
+            }
+            top.children.push(currentTextNode);  
+        }
+        currentTextNode.content += token.content;  
     }
 }
 
-const EOF = Symbol("EOF");  
 
 function data(c){
     if(c == "<"){  
@@ -128,26 +217,26 @@ function beforeAttributeName(c){
         return beforeAttributeName;
     }else if( c == "/" || c == ">" || c == EOF){       
         return afterAttributeName(c);
-    }else if(c == "="){   //属性里面不可能在属性开头有个等号，它是一种错误
-        // return beforeAttributeName;
+    }else if(c == "="){   
+        
     }else{
-        // 否则它会遇到一个字符，可以理解为是个英文字母，但实际上 Unicode里很多字符都是可以的，这个时候就会创建一个新的属性，进入到 attributeName的状态，attributeName状态就会把当前的 c 给它 reconsume
+        
         currentAttribute = {
             name:"",
             value:""
         }
-        // console.log('currentAttribute', currentAttribute)
+        
         return attributeName(c);   
     }
 }
 
 // <div class="abc" /></div>
 function attributeName(c){
-    // console.log(currentAttribute)
-    if(c.match(/^[\t\n\f ]$/) || c == "/" || c == ">" || c == EOF){   //attribute会继续处理这个c，这个c它会有斜杠/、大于号>、EOF三种特殊的字符的状态，空格也是一样。它都会进入到一个叫做 afterAttributeName的这样的一个状态。
-        return afterAttributeName(c);   //afterAttributeName是相当于一个完整的属性结束了，比如说写 class="abc"，后面
+    
+    if(c.match(/^[\t\n\f ]$/) || c == "/" || c == ">" || c == EOF){   
+        return afterAttributeName(c);   
     }else if(c == "="){
-        return beforeAttributeValue;   //如果是等于，说明attributeName是对应着一个value的，那么它就会进入到一个beforeAttributeValue的状态。
+        return beforeAttributeValue;   
     }else if(c == "\u0000"){
 
     }else if(c == "\"" || c == "'" || c == "<"){
@@ -158,28 +247,24 @@ function attributeName(c){
     }
 }
 
-/**
- *  AttributeValue就又分成了double-quoted、single-quoted和unquoted四种情况。
- */
+
 function beforeAttributeValue(c){
     if(c.match(/^[\t\n\f ]$/)){
         return beforeAttributeName;
     }else if(c == "/" || c == ">" || c == EOF){
         return beforeAttributeValue;
     }else if(c == "\""){
-        return doubleQuotedAttributeValue;  //如果说 attributeValue来的是一个双引号，那么就是 double-quoted
+        return doubleQuotedAttributeValue;  
     }else if(c == "\'"){
-        return singleQuotedAttributeValue;  //如果是单引号，那么就是 single-quoted，如果是啥都没有，也不是什么特殊的符号，那它就是unquoted。
+        return singleQuotedAttributeValue;  
     }else if(c == ">"){
-        // return data;       
+           
     }else {
         return UnquotedAttributeValue(c);
     }
 }
 
-/**
- *   double-quoted 状态只找双引号结束，那么 single-quoted 就只找单引号结束。
- */
+
 function doubleQuotedAttributeValue(c){
     if(c == "\""){
         currentToken[currentAttribute.name] = currentAttribute.value
@@ -208,7 +293,7 @@ function singleQuotedAttributeValue(c){
     }
 }
 
-// <div id="a" x=
+
 function afterQuotedAttributeValue (c){
     if(c.match(/^[\t\n\f ]$/)){
         return beforeAttributeName;
@@ -226,9 +311,7 @@ function afterQuotedAttributeValue (c){
     }
 }
 
-/**
- *  Unquoted只找空白符结束，所有的属性它都会在结束的时候，把它的 attributeValue 给它写到当前的 currentToken。
- */
+
 function UnquotedAttributeValue(c){
     if(c.match(/^[\t\n\f ]$/)){
         currentToken[currentAttribute.name] = currentAttribute.value;
@@ -237,7 +320,7 @@ function UnquotedAttributeValue(c){
         currentToken[currentAttribute.name] = currentAttribute.value;
         return selfClosingStartTag;
     }else if(c == ">"){
-        currentToken[currentAttribute.name] = currentAttribute.value;  //currentToken 就是标签，写到当前的token上，整体设计就是这样。
+        currentToken[currentAttribute.name] = currentAttribute.value;  
         emit(currentToken);
         return data;
     }else if(c == "\u0000"){
@@ -295,4 +378,6 @@ module.exports.parseHTML = function parseHTML(html){
         state = state(c); 
     }
     state = state(EOF);   
+    // console.log('EOF',stack[0]);
+    return stack[0];
 }

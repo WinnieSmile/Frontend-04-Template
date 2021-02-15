@@ -1,22 +1,67 @@
+const css = require('css');     //使用 npm install css   【安装css包】
+
+const EOF = Symbol("EOF");
+
 let currentToken = null;
 let currentAttribute = null;
 
 let stack = [{ type:"document", children:[] }];   
+let currentTextNode = null;   
+
+
+let rules = [];
+function addCSSRules(text){
+    var ast = css.parse(text);
+    console.log('ast', ast)
+    rules.push(...ast.stylesheet.rules);
+    console.log('rules', rules)
+}
+
+function match(element, selector){
+
+}
+
+function computeCSS(element){
+    var elements = stack.slice().reverse();  //拿到当前元素element、所有的elements和CSS rules
+    console.log('element', element)
+    console.log('rules', rules)
+
+    if(!element.computedStyle){
+        element.computedStyle = {};   //判断是否匹配，给它加一个computedStyle这样的属性，保存由CSS来设置的属性。
+    } 
+    for(let rule of rules){
+        var selectorParts = rule.selectors[0].split(" ").reverse();  //根据之前给出来的 ast的结构：rule.selectors[0]，可以知道每个rule有selectors的这样的一个数组。为了和elements的顺序一致，我们把选择器进行一次reverse。这样就得到一个 selectorParts 的数组。    
+        
+        // 如果说做一个假设，就是简单选择器，它最后一个也就是 reverse之后的 0 是要跟当前元素算是否匹配的。这里把当前元素跟选择器做一下匹配算法。
+        if(!match(element, selectorParts[0])){  //这里调用一个match函数
+            console.log('调match')
+            continue;
+        }
+        let matched = false;
+
+        var j = 1;        // j表示当前的选择器的位置， i表示当前的元素的位置。
+        for(var i = 0; i < elements.length; i++){  // 双循环选择器和元素的父元素来找到它们是否能够进行匹配
+            if(match(elements[i], selectorParts[j])){   // 一旦元素能够匹配到一个选择器，我们就让 j 自增
+                j++;
+            }
+        }
+        // 在最后结束的时候，检查是否所有的选择器已经被匹配到了，如果都匹配到了，那么就认为它是个匹配成功的这样的选择器。
+        if(j >= selectorParts.length){  
+            matched = true;
+        }
+        if(matched){  //根据匹配的结果，就可以把rules里面的所有的CSS属性应用到这个元素上。
+            // 如果匹配到，我们要加入
+            console.log("Element", element );
+            console.log("matched rule", rule)
+        }
+    }
+}
+
 
 function emit(token){
-    // if(token.type!="text")
-    // console.log(token);
-    if(token.type === "text"){  //如果是文本节点，就忽略掉
-        return;
-    }
-    let top = stack[stack.length - 1];   // 每次emit token之后先把栈顶取出来，用一个数组来表示stack，那么它的栈顶就是最后一个元素
+    let top = stack[stack.length - 1];   
+    console.log(token.type,token.content)
 
-    /**
-     *  如果是startToken，那么我们就会对它进行一个入栈操作，不会把这个token直接入栈，我们会入栈一个element。
-     *  tag和element的区别：写在HTML文本里面的带尖括号的是tag，它背后所表示的东西，那个抽象的概念就是element。所以我们DOM树里面它只会有note和element，它不会有tag。不论是startTag还是endTag，它最终都对应着同一个element。
-     *  把token里面的element直接赋值给element，让它变成element的tagName；然后把所有的属性除了type和tagName之外的属性都给它push进element的一个属性的池子里面
-     *  attributes:[]    放了一个空的数组
-     */
     if(token.type == "startTag"){   
         let element = {
             type:"element",  
@@ -35,27 +80,40 @@ function emit(token){
             }
         }
 
-        top.children.push(element);    //入栈之前把它的top的children里面加上这个element元素，然后我们把元素parent设成top。这是对偶的操作
+        computeCSS(element);    
+
+        top.children.push(element);    
         element.parent = top;
 
-        if(!token.isSelfClosing){   //如果是自封闭的就没有必要去push stack，如果它不是自封闭的，它是个startTag的话，我们就给它push进去。
+        if(!token.isSelfClosing){   
             stack.push(element);
         }
         currentTextNode = null;
 
-    }else if(token.type == "endTag"){
-        //检查一下tagName是否相等
-        if(top.tagName != token.tagName){  //如果不相等，理论上讲HTML是有一定的容错性的，比如说外面是一个p标签，里面是一个span标签，它默认就会把span标签先给封闭掉，然后再把p标签放进去。 
-            throw new Error("Tag start end doesn't match");
-        }else {
-            //如果是相等的，那么就说明它配对是成功的，直接stack.pop();就好了
+    }else if(token.type == "endTag"){  
+        if(top.tagName != token.tagName){   
+            throw new Error("Tag start end doesn't match!");
+        }else {  
+            // +++++++++++++++++++   遇到 style 标签时，执行添加CSS规则的操作  +++++++++++++++  //
+            if(top.tagName === "style"){
+                addCSSRules(top.children[0].content);  
+            }  
             stack.pop();
         }
         currentTextNode = null;
+    }else if(token.type == "text"){
+        // 节点类型为文本的处理逻辑
+        if(currentTextNode == null){
+            currentTextNode = {  
+                type:"text",
+                content:""
+            }
+            top.children.push(currentTextNode);  
+        }
+        currentTextNode.content += token.content;  
     }
 }
 
-const EOF = Symbol("EOF");  
 
 function data(c){
     if(c == "<"){  
@@ -128,26 +186,26 @@ function beforeAttributeName(c){
         return beforeAttributeName;
     }else if( c == "/" || c == ">" || c == EOF){       
         return afterAttributeName(c);
-    }else if(c == "="){   //属性里面不可能在属性开头有个等号，它是一种错误
-        // return beforeAttributeName;
+    }else if(c == "="){   
+        
     }else{
-        // 否则它会遇到一个字符，可以理解为是个英文字母，但实际上 Unicode里很多字符都是可以的，这个时候就会创建一个新的属性，进入到 attributeName的状态，attributeName状态就会把当前的 c 给它 reconsume
+        
         currentAttribute = {
             name:"",
             value:""
         }
-        // console.log('currentAttribute', currentAttribute)
+        
         return attributeName(c);   
     }
 }
 
 // <div class="abc" /></div>
 function attributeName(c){
-    // console.log(currentAttribute)
-    if(c.match(/^[\t\n\f ]$/) || c == "/" || c == ">" || c == EOF){   //attribute会继续处理这个c，这个c它会有斜杠/、大于号>、EOF三种特殊的字符的状态，空格也是一样。它都会进入到一个叫做 afterAttributeName的这样的一个状态。
-        return afterAttributeName(c);   //afterAttributeName是相当于一个完整的属性结束了，比如说写 class="abc"，后面
+    
+    if(c.match(/^[\t\n\f ]$/) || c == "/" || c == ">" || c == EOF){   
+        return afterAttributeName(c);   
     }else if(c == "="){
-        return beforeAttributeValue;   //如果是等于，说明attributeName是对应着一个value的，那么它就会进入到一个beforeAttributeValue的状态。
+        return beforeAttributeValue;   
     }else if(c == "\u0000"){
 
     }else if(c == "\"" || c == "'" || c == "<"){
@@ -158,28 +216,24 @@ function attributeName(c){
     }
 }
 
-/**
- *  AttributeValue就又分成了double-quoted、single-quoted和unquoted四种情况。
- */
+
 function beforeAttributeValue(c){
     if(c.match(/^[\t\n\f ]$/)){
         return beforeAttributeName;
     }else if(c == "/" || c == ">" || c == EOF){
         return beforeAttributeValue;
     }else if(c == "\""){
-        return doubleQuotedAttributeValue;  //如果说 attributeValue来的是一个双引号，那么就是 double-quoted
+        return doubleQuotedAttributeValue;  
     }else if(c == "\'"){
-        return singleQuotedAttributeValue;  //如果是单引号，那么就是 single-quoted，如果是啥都没有，也不是什么特殊的符号，那它就是unquoted。
+        return singleQuotedAttributeValue;  
     }else if(c == ">"){
-        // return data;       
+           
     }else {
         return UnquotedAttributeValue(c);
     }
 }
 
-/**
- *   double-quoted 状态只找双引号结束，那么 single-quoted 就只找单引号结束。
- */
+
 function doubleQuotedAttributeValue(c){
     if(c == "\""){
         currentToken[currentAttribute.name] = currentAttribute.value
@@ -208,7 +262,7 @@ function singleQuotedAttributeValue(c){
     }
 }
 
-// <div id="a" x=
+
 function afterQuotedAttributeValue (c){
     if(c.match(/^[\t\n\f ]$/)){
         return beforeAttributeName;
@@ -226,9 +280,7 @@ function afterQuotedAttributeValue (c){
     }
 }
 
-/**
- *  Unquoted只找空白符结束，所有的属性它都会在结束的时候，把它的 attributeValue 给它写到当前的 currentToken。
- */
+
 function UnquotedAttributeValue(c){
     if(c.match(/^[\t\n\f ]$/)){
         currentToken[currentAttribute.name] = currentAttribute.value;
@@ -237,7 +289,7 @@ function UnquotedAttributeValue(c){
         currentToken[currentAttribute.name] = currentAttribute.value;
         return selfClosingStartTag;
     }else if(c == ">"){
-        currentToken[currentAttribute.name] = currentAttribute.value;  //currentToken 就是标签，写到当前的token上，整体设计就是这样。
+        currentToken[currentAttribute.name] = currentAttribute.value;  
         emit(currentToken);
         return data;
     }else if(c == "\u0000"){
@@ -295,4 +347,6 @@ module.exports.parseHTML = function parseHTML(html){
         state = state(c); 
     }
     state = state(EOF);   
+    console.log('EOF',stack[0]);
+    return stack[0];
 }
