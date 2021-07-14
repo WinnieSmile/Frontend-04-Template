@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2020-08-23 22:33:08
- * @LastEditTime: 2021-07-04 17:25:20
+ * @LastEditTime: 2021-07-14 22:43:26
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \Frontend-04-Template\Week_18\README.md
@@ -26,4 +26,4 @@ Ubuntu 20.04.1 LTS (Focal Fossa) 下载地址：
 二、新建一个虚拟机
 
 ## （二）实现一个线上Web服务
-一、初始化Server
+一、初始化 Server
