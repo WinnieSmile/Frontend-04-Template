@@ -106,7 +106,7 @@ npm install @babel/core @babel/register --save-dev
     "presets": ["@babel/preset-env"]
 }
 ```
-* 安装  @babel/preset-env
+* 安装 @babel/preset-env
 `npm install @babel/preset-env --save-dev`
 * test-demo/test/test.js
 ```javascript
