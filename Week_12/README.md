@@ -217,7 +217,6 @@ module.exports = {
 * 在webpack.config.js中配置JSX
 
 运行：
-
 main.js中
 ```javascript
 function createElement(){
