@@ -1,0 +1,100 @@
+<!--
+ * @Author: your name
+ * @Date: 2021-03-01 20:43:17
+ * @LastEditTime: 2021-03-01 23:36:59
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \html-parser\src\test.html
+-->
+
+<style>
+    .container{
+        display:flex;     
+        justify-content: center;
+        align-items: center;
+    }
+    .container .div{
+        width: flex;
+        height: 100px;
+        background-color:red;
+    }
+
+</style>
+
+<div class="div1">
+
+</div>
+
+<script>
+
+//数组去重方法：
+var arr=['12','32','89','12','12','78','12','32'];
+// 最简单数组去重法（一）
+function fun1(array){
+    var n = []; //一个新的临时数组
+    for(var i = 0; i < array.length; i++){ //遍历当前数组
+        if (n.indexOf(array[i]) == -1)
+            n.push(array[i]);
+    }
+    return n;
+}
+arr = fun1(arr);
+
+//数组下标判断法 （二）
+function fun2(array){
+    var n = [array[0]]; //结果数组
+    for(var i = 1; i < array.length; i++) { //从第二项开始遍历
+        if (array.indexOf(array[i]) == i) 
+            n.push(array[i]);
+    }
+    return n;
+}
+arr = fun2(arr);
+
+//ES6的方法去重
+// 方法一：
+arr=[...new Set(arr)];   //解构赋值
+
+// 方法二：
+function fun3(array) {
+  return Array.from(new Set(array)); //Array.from()能把set结构转换为数组
+}
+arr = fun3(arr);
+
+//用js递归的方式写1到100求和？
+// 方法一：
+function add(num1,num2){
+	var num = num1+num2;
+    if(num2+1>100){
+	    return num;
+	}else{
+	    return add(num,num2+1)
+    }
+}
+var sum1 = add(1,2);    //sum1值为 5050
+
+// 方法二：
+function getSum(number) {
+    if (number === 1 || number === 0){
+        return number;
+    } 
+    return getSum(number - 1) + number;
+}
+var sum2 = getSum(100)  //sum2值为 5050
+
+// 方法三：
+function add(start, end) {
+    if (start === end) {
+        return start
+    }
+    return start + add(start + 1, end)
+}
+var sum3 = add(1, 100)  //sum3值为 5050
+
+
+
+
+
+
+
+</script>
