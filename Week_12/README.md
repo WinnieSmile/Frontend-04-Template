@@ -319,3 +319,175 @@ let a = <Div id="a">
 a.mountTo(document.body);
 
 ```
+## （二）轮播图 carousel
+建立框架：把main.js中的内容抽出来（原始代码如 main_1.js）  
+新建 framework.js 文件   
+```javascript
+function createElement(type, attributes, ...children){
+    let element;
+    if(typeof type === "string"){
+        element = new ElementWrapper(type);
+    }else{
+        element = new type;
+    }
+
+    for(let name in attributes){
+        element.setAttribute(name, attributes[name]);
+    }
+    for(let child of children){
+        if(typeof child === "string"){
+            child = new TextWrapper(child);
+        }
+        element.appendChild(child);
+    }
+    return element;
+}
+
+class ElementWrapper{
+    constructor(type){
+        this.root = document.createElement(type);
+    } 
+    setAttribute(name, value){
+        this.root.setAttribute(name, value);
+    }
+    appendChild(child){
+        child.mountTo(this.root)
+    }
+    mountTo(parent){
+        parent.appendChild(this.root)
+    }
+}
+
+class TextWrapper{
+    constructor(content){
+        this.root = document.createTextNode(content);
+    } 
+    setAttribute(name, value){
+        this.root.setAttribute(name, value);
+    }
+    appendChild(child){
+        child.mountTo(this.root)
+    }
+    mountTo(parent){
+        parent.appendChild(this.root)
+    }
+}
+```
+给 `createElement` 加import，提取`ElementWrapper`和`TextWrapper`的公共部分为`Component`；ElementWrapper和TextWrapper继承Component（使用 `extends`） 
+```javascript
+export function createElement(type, attributes, ...children){
+    let element;
+    if(typeof type === "string"){
+        element = new ElementWrapper(type);
+    }else{
+        element = new type;
+    }
+
+    for(let name in attributes){
+        element.setAttribute(name, attributes[name]);
+    }
+    for(let child of children){
+        if(typeof child === "string"){
+            child = new TextWrapper(child);
+        }
+        element.appendChild(child);
+    }
+    return element;
+}
+
+// 封装公共部分 【ElementWrapper 和 TextWrapper 用到】
+export class Component{
+    constructor(type){
+        this.root = this.render();
+    } 
+    setAttribute(name, value){
+        this.root.setAttribute(name, value);
+    }
+    appendChild(child){
+        child.mountTo(this.root)
+    }
+    mountTo(parent){
+        parent.appendChild(this.root)
+    }
+}
+
+class ElementWrapper extends Component{
+    constructor(type){
+        this.root = document.createElement(type);
+    }   
+}
+
+class TextWrapper extends Component{
+    constructor(content){
+        this.root = document.createTextNode(content);
+    } 
+}
+```
+上面框架已建好，在其他页面引用`import`即可，如main.js文件   
+为方便调试，安装一个webpack的调试工具（不用每次都要webpack一下）`webpack-dev-server`：
+执行命令：`npm install webpack-dev-server --save`
+执行命令：`npm install --save-dev webpack-cli`
+
+>注意：
+1.如果你电脑全局没有装 webpack-dev-server
+你直接使用 webpack-dev-server 命令会报错 command not found: webpack-dev-server
+需要使用 node_modules/.bin/webpack-dev-server 启动
+或者
+配置在package.json 例如:
+"scripts": {
+"start": "webpack-dev-server"
+}
+使用 npm start 或 yarn start 启动
+>
+>2.webpack-cli是4.* 版本 会和 webpack-dev-server 3.* 版本 不兼容
+启动 webpack-dev-server 会报错：Cannot find module 'webpack-cli/bin/config-yargs'
+可以换成启动 webpack serve 命令
+>
+
+执行启动命令 `webpack serve` 之后   
+在浏览器中打开 localhost:8080 
+
+在main.js中写轮播图组件代码：
+第一步：先把这四张图片展示出来
+```javascript
+
+import { Component, createElement } from './framework.js' 
+
+class Carousel extends Component{
+    constructor(){ 
+        super();      
+        this.attributes = Object.create(null);
+    }
+    setAttribute(name, value){
+        this.attributes[name] = value;
+    }
+    render(){
+        console.log('拿到4张图src', this.attributes.src)
+        // 将这四张图渲染出来
+        this.root = document.createElement("div");
+        for(let record of this.attributes.src){
+            let child = document.createElement("img");
+            child.src = record;
+            this.root.appendChild(child);
+        }
+        return this.root;
+    } 
+    mountTo(parent){
+        parent.appendChild(this.render());
+    }  
+}
+
+let d = [
+    "https://static001.geekbang.org/resource/image/bb/21/bb38fb7c1073eaee1755f81131f11d21.jpg",
+    "https://static001.geekbang.org/resource/image/1b/21/1b809d9a2bdf3ecc481322d7c9223c21.jpg",
+    "https://static001.geekbang.org/resource/image/b6/4f/b6d65b2f12646a9fd6b8cb2b020d754f.jpg",
+    "https://static001.geekbang.org/resource/image/73/e4/730ea9c393def7975deceb48b3eb6fe4.jpg",
+]
+
+let a = <Carousel src={d}/>
+a.mountTo(document.body);
+
+```
+第二步：写交互，使之产生轮播的效果   
+   
+
